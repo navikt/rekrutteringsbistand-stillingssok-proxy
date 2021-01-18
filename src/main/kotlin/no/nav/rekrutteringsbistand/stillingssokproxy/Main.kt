@@ -14,11 +14,21 @@ fun main() {
     log("main").info("Starter applikasjon")
 
     val port = (System.getenv("JAVALIN_PORT") ?: "8300").toInt()
+    val aliveUrl = "/internal/isAlive"
+    val readyUrl = "/internal/ready"
 
     val javalin = Javalin.create().start(port)
+    Security.lagSikkerhetsfilter(javalin, listOf(aliveUrl, readyUrl))
 
     javalin.routes {
-        get("/internal/isAlive") { it.status(200) }
-        get("/internal/isReady") { it.status(200) }
+        get(aliveUrl) { it.status(200) }
+        get(readyUrl) { it.status(200) }
     }
 }
+
+
+/*
+Ta i mot request
+Bruke JwtTokenRetriever til å hente ut fra header eller cookie
+Validere via samme bibliotek og sette til context i app
+ */
