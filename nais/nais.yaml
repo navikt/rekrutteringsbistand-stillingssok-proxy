@@ -10,7 +10,7 @@ spec:
   port: 8300
   ingresses:
   { { #each ingress as |url|}}
-      - {{url } }
+      - {{url}}
   {{/each}}
   liveness:
     path: /internal/isAlive
