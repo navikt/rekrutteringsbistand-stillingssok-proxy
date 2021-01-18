@@ -15,7 +15,7 @@ spec:
   liveness:
     path: /internal/isAlive
   readiness:
-    path: /internal/isReadya
+    path: /internal/isReady
   strategy:
     type: Recreate
   replicas:
