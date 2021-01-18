@@ -13,9 +13,9 @@ fun log(name: String): Logger = LoggerFactory.getLogger(name)
 fun main() {
     log("main").info("Starter applikasjon")
 
-    val port = System.getenv("JAVALIN_PORT").toInt()
+    val port = (System.getenv("JAVALIN_PORT") ?: "8300").toInt()
 
-    val javalin = Javalin.create().start(7000)
+    val javalin = Javalin.create().start(port)
 
     javalin.routes {
         get("/internal/isAlive") { it.status(200) }
