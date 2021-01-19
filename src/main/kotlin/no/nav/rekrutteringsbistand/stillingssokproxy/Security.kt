@@ -52,6 +52,7 @@ object Security {
         properties.cookieName = "%s-idtoken"
         properties.discoveryUrl =
             URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration")
+        properties.acceptedAudience = listOf("dev-fss:arbeidsgiver:rekrutteringsbistand-stilling", "prod-fss:arbeidsgiver:rekrutteringsbistand-stilling")
         return MultiIssuerConfiguration(mapOf(Pair("rekrutteringsbistand-stillingssok-proxy", properties)))
     }
 
