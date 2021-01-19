@@ -43,7 +43,7 @@ class Security {
         properties.cookieName = "isso-idtoken"
         properties.discoveryUrl =
             URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration")
-        properties.acceptedAudience = listOf("dev-fss:arbeidsgiver:rekrutteringsbistand-stilling", "prod-fss:arbeidsgiver:rekrutteringsbistand-stilling")
+        properties.acceptedAudience = listOf("38e07d31-659d-4595-939a-f18dce3446c5", "prod-fss:arbeidsgiver:rekrutteringsbistand-stilling")
         return MultiIssuerConfiguration(mapOf(Pair("rekrutteringsbistand-stillingssok-proxy", properties)))
     }
 
