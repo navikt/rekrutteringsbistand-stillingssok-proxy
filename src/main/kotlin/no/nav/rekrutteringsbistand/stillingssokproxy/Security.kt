@@ -4,11 +4,8 @@ import io.javalin.Javalin
 import io.javalin.http.Context
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
-import no.nav.security.token.support.core.context.TokenValidationContext
-import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
-import no.nav.security.token.support.filter.JwtTokenValidationFilter
 import java.net.URL
 import javax.servlet.http.Cookie
 
@@ -22,21 +19,11 @@ class Security {
             val erÅpenUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
 
             if (!erÅpenUrl) {
-                // Legge til try/catch?
                 val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
                 val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
 
-//                val tokenValidationFilter = JwtTokenValidationFilter(
-//                    tokenValidationHandler,
-//                    TokenValidationContextHolderImpl(tokenValidationContext)
-//                )
-//                tokenValidationFilter.doFilter(context.req, context.res) { request, response -> }
-
                 val claims = tokenValidationContext.getClaims(ISSUER_ISSO)
 
-                claims.allClaims.forEach { name, value ->
-                    log("Sikkerhetsfilter").info("Claim: $name, value: $value")
-                }
                 val innloggetVeileder = InnloggetVeileder(
                     claims["unique_name"].toString(),
                     claims["name"].toString(),
@@ -65,15 +52,6 @@ class Security {
     private class NameValueImpl(val cookie: Cookie) : HttpRequest.NameValue {
         override fun getName() = cookie.name
         override fun getValue() = cookie.value
-    }
-
-    private class TokenValidationContextHolderImpl(private var tokenValidationContext: TokenValidationContext?) :
-        TokenValidationContextHolder {
-        override fun getTokenValidationContext() = tokenValidationContext
-
-        override fun setTokenValidationContext(tokenValidationContext: TokenValidationContext?) {
-            this.tokenValidationContext = tokenValidationContext
-        }
     }
 
     data class InnloggetVeileder(
