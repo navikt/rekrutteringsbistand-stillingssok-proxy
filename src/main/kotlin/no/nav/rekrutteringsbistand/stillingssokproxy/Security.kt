@@ -40,7 +40,7 @@ class Security {
 
     private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
         val properties = IssuerProperties()
-        properties.cookieName = "isso"
+        properties.cookieName = "isso-idtoken"
         properties.discoveryUrl =
             URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration")
         properties.acceptedAudience = listOf("dev-fss:arbeidsgiver:rekrutteringsbistand-stilling", "prod-fss:arbeidsgiver:rekrutteringsbistand-stilling")
