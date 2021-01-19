@@ -15,10 +15,10 @@ class Security {
 
     fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
         javalin.before { context ->
-            val url = context.req.requestURL
+            val url: String = context.req.requestURL.toString()
             val erÅpenUrl = tillateUrl.any { tillattUrl ->
-                    log("Security").info("url1:${url} url2:${tillattUrl} tillatt:${url.equals(tillattUrl)}")
-                    url.equals(tillattUrl)
+                log("Security").info("url1:${url} url2:${tillattUrl} tillatt:${url.equals(tillattUrl, true)}")
+                url.equals(tillattUrl)
             }
             log("Security").info("sjekkurl:${url}")
 
@@ -33,7 +33,7 @@ class Security {
         }
     }
 
-    private fun innloggetVeileder(context: Context) : InnloggetVeileder {
+    private fun innloggetVeileder(context: Context): InnloggetVeileder {
         val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
         val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
 
