@@ -24,27 +24,19 @@ class Security {
             if (!erÅpenUrl) {
                 // Legge til try/catch?
                 val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
-                log("Sikkerhetsfilter").info("CookieMap: ${context.cookieMap()}")
                 val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
 
-                log("Sikkerhetsfilter").info("TokenValidationContext: $tokenValidationContext")
-
-
-                val tokenValidationFilter = JwtTokenValidationFilter(
-                    tokenValidationHandler,
-                    TokenValidationContextHolderImpl(tokenValidationContext)
-                )
-                tokenValidationFilter.doFilter(context.req, context.res) { request, response -> }
-
-                val issuers = tokenValidationContext.issuers
-                log("Sikkerhetsfilter").info("Issuers: $issuers")
-
-                val jwt = tokenValidationContext.getJwtToken(ISSUER_ISSO)
-                log("Sikkerhetsfilter").info("JWT: $jwt")
+//                val tokenValidationFilter = JwtTokenValidationFilter(
+//                    tokenValidationHandler,
+//                    TokenValidationContextHolderImpl(tokenValidationContext)
+//                )
+//                tokenValidationFilter.doFilter(context.req, context.res) { request, response -> }
 
                 val claims = tokenValidationContext.getClaims(ISSUER_ISSO)
-                log("Sikkerhetsfilter").info("Claims: $claims")
 
+                claims.allClaims.forEach { name, value ->
+                    log("Sikkerhetsfilter").info("Claim: $name, value: $value")
+                }
                 val innloggetVeileder = InnloggetVeileder(
                     claims["unique_name"].toString(),
                     claims["name"].toString(),
