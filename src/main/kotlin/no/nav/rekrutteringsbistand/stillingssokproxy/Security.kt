@@ -44,6 +44,14 @@ class Security {
 
                 val claims = tokenValidationContext.getClaims(ISSUER_ISSO)
                 log("Sikkerhetsfilter").info("Claims: $claims")
+
+                val innloggetVeileder = InnloggetVeileder(
+                    claims["unique_name"].toString(),
+                    claims["name"].toString(),
+                    claims["NAVident"].toString()
+                )
+
+                log("Sikkerhetsfilter").info("InnloggetVeileder: $innloggetVeileder")
             }
         }
     }
