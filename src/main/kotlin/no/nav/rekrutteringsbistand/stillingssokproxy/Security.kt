@@ -9,6 +9,9 @@ import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 import no.nav.security.token.support.filter.JwtTokenValidationFilter
 import java.net.URL
+import javax.servlet.FilterChain
+import javax.servlet.ServletRequest
+import javax.servlet.ServletResponse
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 
@@ -28,6 +31,9 @@ object Security {
                     tokenValidationHandler,
                     TokenValidationContextHolderImpl(tokenValidationContext)
                 )
+                tokenValidationFilter.doFilter(context.req, context.res, object : FilterChain {
+                    override fun doFilter(request: ServletRequest?, response: ServletResponse?) {}
+                })
 
                 val claims = tokenValidationContext.getClaims(ISSUER_ISSO).run {
                     InnloggetVeileder(
