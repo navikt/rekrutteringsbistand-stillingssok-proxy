@@ -11,11 +11,10 @@ import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 import no.nav.security.token.support.filter.JwtTokenValidationFilter
 import java.net.URL
 import javax.servlet.http.Cookie
-import javax.servlet.http.HttpServletRequest
 
 class Security {
 
-    private val ISSUER_ISSO = "isso"
+    private val ISSUER_ISSO = "isso-idtoken"
 
     fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
         javalin.before { context ->
@@ -43,7 +42,7 @@ class Security {
 
     private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
         val properties = IssuerProperties()
-        properties.cookieName = "isso-idtoken"
+        properties.cookieName = ISSUER_ISSO
         properties.discoveryUrl =
             URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration")
         properties.acceptedAudience = listOf("38e07d31-659d-4595-939a-f18dce3446c5", "prod-fss:arbeidsgiver:rekrutteringsbistand-stilling")
