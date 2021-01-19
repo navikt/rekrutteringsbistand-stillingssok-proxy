@@ -1,6 +1,7 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import io.javalin.Javalin
+import io.javalin.http.Context
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.context.TokenValidationContext
@@ -22,8 +23,10 @@ class Security {
             val erÅpenUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
 
             if (!erÅpenUrl) {
+                // Legge til try/catch?
                 val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
-                val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context.req))
+                log("Sikkerhetsfilter").info("CookieMap: ${context.cookieMap()}")
+                val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
 
                 val tokenValidationFilter = JwtTokenValidationFilter(
                     tokenValidationHandler,
@@ -47,9 +50,9 @@ class Security {
         return MultiIssuerConfiguration(mapOf(Pair("rekrutteringsbistand-stillingssok-proxy", properties)))
     }
 
-    private fun getHttpRequest(servletRequest: HttpServletRequest): HttpRequest = object : HttpRequest {
-        override fun getHeader(headerName: String?) = servletRequest.getHeader(headerName)
-        override fun getCookies() = servletRequest.cookies.map { cookie -> NameValueImpl(cookie) }.toTypedArray()
+    private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
+        override fun getHeader(headerName: String?) = context.headerMap()[headerName]
+        override fun getCookies() = context.cookieMap().map { (name, value) -> NameValueImpl(Cookie(name, value)) }.toTypedArray()
     }
 
     private class NameValueImpl(val cookie: Cookie) : HttpRequest.NameValue {
