@@ -25,8 +25,6 @@ object Security {
                 val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
                 val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context.req))
 
-                tokenValidationContext.getJwtToken()
-
                 val tokenValidationFilter = JwtTokenValidationFilter(
                     tokenValidationHandler,
                     TokenValidationContextHolderImpl(tokenValidationContext)
