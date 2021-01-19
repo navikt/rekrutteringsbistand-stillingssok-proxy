@@ -9,8 +9,8 @@ spec:
   image: {{image}}
   port: 8300
   ingresses:
-  {{#each ingress as |url|}}
-     - {{url}}
+  { { #each ingress as |url|}}
+      - {{url } }
   {{/each}}
   liveness:
     path: /internal/isAlive
@@ -24,6 +24,14 @@ spec:
   azure:
     application:
       enabled: true
+  tokenx:
+    enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: {{clientApplication}}
+          namespace: {{clientApplicationNamespace}}
+          cluster: {{clientApplicationCluster}}
   elastic:
     instance: rekrutteringsbistand-stilling
   # Legg til envFrom: secret

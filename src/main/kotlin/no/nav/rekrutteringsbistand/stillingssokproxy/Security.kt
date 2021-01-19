@@ -4,11 +4,14 @@ import io.javalin.Javalin
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
-import no.nav.security.token.support.core.validation.JwtTokenRetriever
+import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
+import java.net.URL
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 
 object Security {
+
+    private val ISSUER_ISSO = "isso"
 
     fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
         javalin.before { context ->
@@ -16,11 +19,21 @@ object Security {
             val erTillattUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
 
             if (!erTillattUrl) {
-                val httpRequest = getHttpRequest(context.req)
-                // Hvor kan hentes fra
-                val ikkeValiderteTokens =
-                    JwtTokenRetriever.retrieveUnvalidatedTokens(getMultiIssuerConfiguration(), httpRequest)
+                try {
+                    val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
+                    val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context.req))
 
+                    val claims = tokenValidationContext.getClaims(ISSUER_ISSO).run {
+                        InnloggetVeileder(
+                            userName = get("unique_name").toString(),
+                            displayName = get("name").toString(),
+                            navIdent = get("NAVident").toString()
+                        )
+                    }
+                    log("Sikkerhetsfilter").info("InnloggetVeileder: $claims")
+                } catch (e: RuntimeException) {
+                    context.status(403)
+                }
             }
 
         }
@@ -28,8 +41,10 @@ object Security {
 
     private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
         val properties = IssuerProperties()
-        // Set opp properties
-        return MultiIssuerConfiguration(mapOf(Pair("Vår App", properties)))
+        properties.cookieName = "%s-idtoken"
+        properties.discoveryUrl =
+            URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration")
+        return MultiIssuerConfiguration(mapOf(Pair("rekrutteringsbistand-stillingssok-proxy", properties)))
     }
 
     private fun getHttpRequest(servletRequest: HttpServletRequest): HttpRequest = object : HttpRequest {
@@ -41,4 +56,10 @@ object Security {
         override fun getName() = cookie.name
         override fun getValue() = cookie.value
     }
+
+    data class InnloggetVeileder(
+        val userName: String,
+        val displayName: String,
+        val navIdent: String
+    )
 }
