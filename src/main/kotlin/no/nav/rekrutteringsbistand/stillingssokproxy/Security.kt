@@ -54,7 +54,7 @@ class Security {
         properties.discoveryUrl =
             URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration")
         properties.acceptedAudience = listOf("38e07d31-659d-4595-939a-f18dce3446c5", "prod-fss:arbeidsgiver:rekrutteringsbistand-stilling")
-        return MultiIssuerConfiguration(mapOf(Pair("rekrutteringsbistand-stillingssok-proxy", properties)))
+        return MultiIssuerConfiguration(mapOf(Pair(ISSUER_ISSO, properties)))
     }
 
     private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
