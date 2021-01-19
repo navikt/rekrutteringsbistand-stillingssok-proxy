@@ -11,7 +11,7 @@ import javax.servlet.http.Cookie
 
 class Security {
 
-    private val ISSUER_ISSO = "isso-idtoken"
+    private val issuer_isso = "isso-idtoken"
 
     fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
         javalin.before { context ->
@@ -20,34 +20,55 @@ class Security {
             log("Security").info("sjekkurl:${url}")
 
             if (!erÅpenUrl) {
-                val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
-                val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
-
-                val claims = tokenValidationContext.getClaims(ISSUER_ISSO)
-
-                val innloggetVeileder = InnloggetVeileder(
-                    claims["unique_name"].toString(),
-                    claims["name"].toString(),
-                    claims["NAVident"].toString()
-                )
-
-                log("Sikkerhetsfilter").info("InnloggetVeileder: $innloggetVeileder")
+                try {
+                    val veileder = innloggetVeileder(context)
+                    context.cookieStore("innloggetVeileder", veileder)
+                } catch (e: Exception) {
+                    context.status(403)
+                }
             }
         }
     }
 
+    private fun innloggetVeileder(context: Context) : InnloggetVeileder {
+        val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
+        val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
+
+        val claims = tokenValidationContext.getClaims(issuer_isso)
+
+        val innloggetVeileder = InnloggetVeileder(
+            claims["unique_name"].toString(),
+            claims["name"].toString(),
+            claims["NAVident"].toString()
+        )
+        innloggetVeileder.validate()
+
+        log("Sikkerhetsfilter").info("InnloggetVeileder: $innloggetVeileder")
+        return innloggetVeileder
+    }
+
     private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
-        val properties = IssuerProperties()
-        properties.cookieName = ISSUER_ISSO
-        properties.discoveryUrl =
-            URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration")
-        properties.acceptedAudience = listOf("38e07d31-659d-4595-939a-f18dce3446c5", "prod-fss:arbeidsgiver:rekrutteringsbistand-stilling")
-        return MultiIssuerConfiguration(mapOf(Pair(ISSUER_ISSO, properties)))
+        val properties = when (System.getenv("NAIS_CLUSTER_NAME")) {
+            "dev-gcp" -> IssuerProperties(
+                URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration"),
+                listOf("38e07d31-659d-4595-939a-f18dce3446c5"),
+                issuer_isso
+            )
+            "prod-gcp" -> IssuerProperties(
+                URL("https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration"),
+                listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
+                issuer_isso
+            )
+            else -> throw RuntimeException("Ukjent cluster")
+        }
+
+        return MultiIssuerConfiguration(mapOf(Pair(issuer_isso, properties)))
     }
 
     private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
         override fun getHeader(headerName: String?) = context.headerMap()[headerName]
-        override fun getCookies() = context.cookieMap().map { (name, value) -> NameValueImpl(Cookie(name, value)) }.toTypedArray()
+        override fun getCookies() =
+            context.cookieMap().map { (name, value) -> NameValueImpl(Cookie(name, value)) }.toTypedArray()
     }
 
     private class NameValueImpl(val cookie: Cookie) : HttpRequest.NameValue {
@@ -59,5 +80,15 @@ class Security {
         val userName: String,
         val displayName: String,
         val navIdent: String
-    )
+    ) {
+
+        fun validate() {
+            if (listOf<String>(userName, displayName, navIdent).any { s -> s.isEmpty() }) {
+                throw RuntimeException("Ugyldig token")
+            }
+        }
+
+    }
+
+
 }
