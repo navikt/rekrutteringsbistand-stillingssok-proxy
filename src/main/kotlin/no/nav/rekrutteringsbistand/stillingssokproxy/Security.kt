@@ -3,8 +3,11 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 import io.javalin.Javalin
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
+import no.nav.security.token.support.core.context.TokenValidationContext
+import no.nav.security.token.support.core.context.TokenValidationContextHolder
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
+import no.nav.security.token.support.filter.JwtTokenValidationFilter
 import java.net.URL
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
@@ -19,23 +22,22 @@ object Security {
             val erTillattUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
 
             if (!erTillattUrl) {
-                try {
-                    val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
-                    val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context.req))
+                val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
+                val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context.req))
+                val tokenValidationFilter = JwtTokenValidationFilter(
+                    tokenValidationHandler,
+                    TokenValidationContextHolderImpl(tokenValidationContext)
+                )
 
-                    val claims = tokenValidationContext.getClaims(ISSUER_ISSO).run {
-                        InnloggetVeileder(
-                            userName = get("unique_name").toString(),
-                            displayName = get("name").toString(),
-                            navIdent = get("NAVident").toString()
-                        )
-                    }
-                    log("Sikkerhetsfilter").info("InnloggetVeileder: $claims")
-                } catch (e: RuntimeException) {
-                    context.status(403)
+                val claims = tokenValidationContext.getClaims(ISSUER_ISSO).run {
+                    InnloggetVeileder(
+                        userName = get("unique_name").toString(),
+                        displayName = get("name").toString(),
+                        navIdent = get("NAVident").toString()
+                    )
                 }
+                log("Sikkerhetsfilter").info("InnloggetVeileder: $claims")
             }
-
         }
     }
 
@@ -55,6 +57,15 @@ object Security {
     private class NameValueImpl(val cookie: Cookie) : HttpRequest.NameValue {
         override fun getName() = cookie.name
         override fun getValue() = cookie.value
+    }
+
+    private class TokenValidationContextHolderImpl(private var tokenValidationContext: TokenValidationContext?) :
+        TokenValidationContextHolder {
+        override fun getTokenValidationContext() = tokenValidationContext
+
+        override fun setTokenValidationContext(tokenValidationContext: TokenValidationContext?) {
+            this.tokenValidationContext = tokenValidationContext
+        }
     }
 
     data class InnloggetVeileder(

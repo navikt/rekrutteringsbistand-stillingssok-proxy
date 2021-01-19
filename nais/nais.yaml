@@ -26,12 +26,12 @@ spec:
       enabled: true
   tokenx:
     enabled: true
-  accessPolicy:
-    inbound:
-      rules:
-        - application: {{clientApplication}}
-          namespace: {{clientApplicationNamespace}}
-          cluster: {{clientApplicationCluster}}
+  #  accessPolicy:
+  #    inbound:
+  #      rules:
+  #        - application: {{clientApplication}}
+  #          namespace: {{clientApplicationNamespace}}
+  #          cluster: {{clientApplicationCluster}}
   elastic:
     instance: rekrutteringsbistand-stilling
   # Legg til envFrom: secret
