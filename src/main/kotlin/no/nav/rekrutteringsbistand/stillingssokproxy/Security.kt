@@ -17,7 +17,7 @@ class Security {
         javalin.before { context ->
             val url = context.req.requestURL
             val erÅpenUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
-            log.info("Security", "sjekkurl:${url}")
+            log("Security").info("sjekkurl:${url}")
 
             if (!erÅpenUrl) {
                 val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
