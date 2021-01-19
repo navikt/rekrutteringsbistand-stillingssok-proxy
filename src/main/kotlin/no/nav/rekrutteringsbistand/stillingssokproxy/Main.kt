@@ -18,7 +18,9 @@ fun main() {
     val readyUrl = "/internal/ready"
 
     val javalin = Javalin.create().start(port)
-    Security.lagSikkerhetsfilter(javalin, listOf(aliveUrl, readyUrl))
+
+    val security = Security()
+    security.lagSikkerhetsfilter(javalin, listOf(aliveUrl, readyUrl))
 
     javalin.routes {
         get(aliveUrl) { it.status(200) }

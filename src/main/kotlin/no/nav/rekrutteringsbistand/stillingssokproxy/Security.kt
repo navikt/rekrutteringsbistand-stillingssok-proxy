@@ -12,7 +12,7 @@ import java.net.URL
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 
-object Security {
+class Security {
 
     private val ISSUER_ISSO = "isso"
 
