@@ -28,10 +28,3 @@ fun main() {
         get("/test") { it.status(200) }
     }
 }
-
-
-/*
-Ta i mot request
-Bruke JwtTokenRetriever til å hente ut fra header eller cookie
-Validere via samme bibliotek og sette til context i app
- */
