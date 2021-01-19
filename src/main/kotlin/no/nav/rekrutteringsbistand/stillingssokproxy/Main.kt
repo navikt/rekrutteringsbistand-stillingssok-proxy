@@ -14,8 +14,8 @@ fun main() {
     log("main").info("Starter applikasjon")
 
     val port = (System.getenv("JAVALIN_PORT") ?: "8300").toInt()
-    val aliveUrl = "/internal/isAlive"
-    val readyUrl = "/internal/isReady"
+    val aliveUrl = "http://localhost:${port}/internal/isAlive"
+    val readyUrl = "http://localhost:${port}/internal/isReady"
 
     val javalin = Javalin.create().start(port)
 
