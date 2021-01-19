@@ -16,7 +16,10 @@ class Security {
     fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
         javalin.before { context ->
             val url = context.req.requestURL
-            val erÅpenUrl = tillateUrl.any { tillattUrl -> url.equals(tillattUrl) }
+            val erÅpenUrl = tillateUrl.any { tillattUrl ->
+                    log("Security").info("url1:${url} url2:${tillateUrl} eq:${url.equals(tillateUrl)}")
+                    url.equals(tillattUrl)
+            }
             log("Security").info("sjekkurl:${url}")
 
             if (!erÅpenUrl) {
