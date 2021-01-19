@@ -9,9 +9,6 @@ import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 import no.nav.security.token.support.filter.JwtTokenValidationFilter
 import java.net.URL
-import javax.servlet.FilterChain
-import javax.servlet.ServletRequest
-import javax.servlet.ServletResponse
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 
@@ -22,18 +19,19 @@ object Security {
     fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
         javalin.before { context ->
             val url = context.req.requestURL
-            val erTillattUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
+            val erÅpenUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
 
-            if (!erTillattUrl) {
+            if (!erÅpenUrl) {
                 val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration())
                 val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context.req))
+
+                tokenValidationContext.getJwtToken()
+
                 val tokenValidationFilter = JwtTokenValidationFilter(
                     tokenValidationHandler,
                     TokenValidationContextHolderImpl(tokenValidationContext)
                 )
-                tokenValidationFilter.doFilter(context.req, context.res, object : FilterChain {
-                    override fun doFilter(request: ServletRequest?, response: ServletResponse?) {}
-                })
+                tokenValidationFilter.doFilter(context.req, context.res) { request, response -> }
 
                 val claims = tokenValidationContext.getClaims(ISSUER_ISSO).run {
                     InnloggetVeileder(
@@ -49,7 +47,7 @@ object Security {
 
     private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
         val properties = IssuerProperties()
-        properties.cookieName = "%s-idtoken"
+        properties.cookieName = "isso"
         properties.discoveryUrl =
             URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration")
         properties.acceptedAudience = listOf("dev-fss:arbeidsgiver:rekrutteringsbistand-stilling", "prod-fss:arbeidsgiver:rekrutteringsbistand-stilling")
