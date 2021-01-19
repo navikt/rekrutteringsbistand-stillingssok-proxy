@@ -31,14 +31,9 @@ object Security {
                 )
                 tokenValidationFilter.doFilter(context.req, context.res) { request, response -> }
 
-                val claims = tokenValidationContext.getClaims(ISSUER_ISSO).run {
-                    InnloggetVeileder(
-                        userName = get("unique_name").toString(),
-                        displayName = get("name").toString(),
-                        navIdent = get("NAVident").toString()
-                    )
-                }
-                log("Sikkerhetsfilter").info("InnloggetVeileder: $claims")
+                val claims = tokenValidationContext.getClaims(ISSUER_ISSO)
+
+                log("Sikkerhetsfilter").info("Claims: $claims")
             }
         }
     }
