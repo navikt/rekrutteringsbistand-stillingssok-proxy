@@ -16,12 +16,13 @@ class Security {
     fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
         javalin.before { context ->
             val url: String = context.req.requestURL.toString()
-            val erÅpenUrl = tillateUrl.any { tillattUrl ->
-                log("Security").info("url1:${url} url2:${tillattUrl} tillatt:${url == tillattUrl}")
-                url == tillattUrl
-            }
+
+            log("Security").info("Sjekker om URL $url er tillatt")
+            val erÅpenUrl = tillateUrl.contains(url)
+            log("Security").info("Er åpen: $erÅpenUrl")
 
             if (!erÅpenUrl) {
+                log("Security").info("bruker sikkerhetsfilter for url: $url")
                 try {
                     val veileder = innloggetVeileder(context)
                     context.cookieStore("innloggetVeileder", veileder)

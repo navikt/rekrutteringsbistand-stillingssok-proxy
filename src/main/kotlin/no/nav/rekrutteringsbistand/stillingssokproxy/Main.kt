@@ -33,8 +33,14 @@ fun main() {
     }
 
     javalin.routes {
-        get(aliveUrl) { it.status(200) }
-        get(readyUrl) { it.status(200) }
+        get(aliveUrl) { context ->
+            log("Main").info("Sjekker isAlive")
+            context.status(200)
+        }
+        get(readyUrl) { context ->
+            log("Main").info("Sjekker isReady")
+            context.status(200)
+        }
         get("/test") { it.status(200) }
     }
 }
