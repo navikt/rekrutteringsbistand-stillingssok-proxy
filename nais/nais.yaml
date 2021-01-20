@@ -16,11 +16,6 @@ spec:
     path: /internal/isAlive
   readiness:
     path: /internal/isReady
-  strategy:
-    type: Recreate
-  replicas:
-    min: 1
-    max: 1
   azure:
     application:
       enabled: true
@@ -30,5 +25,3 @@ spec:
   env:
     - name: ELASTIC_SEARCH_API
       value: {{elastic-search-api}}
-    - name: PROXY_VERSJON
-      value: "1"
