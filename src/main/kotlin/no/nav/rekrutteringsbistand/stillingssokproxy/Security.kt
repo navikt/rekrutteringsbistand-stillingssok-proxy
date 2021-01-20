@@ -17,6 +17,7 @@ class Security {
         javalin.before { context ->
             val url: String = context.req.requestURL.toString()
             val erÅpenUrl = tillateUrl.any { tillattUrl ->
+                log("Security").info("url1:${url} url2:${tillattUrl} tillatt:${url == tillattUrl}")
                 url == tillattUrl
             }
 
