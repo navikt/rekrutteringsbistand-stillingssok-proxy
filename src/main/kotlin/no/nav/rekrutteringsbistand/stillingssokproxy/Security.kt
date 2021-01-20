@@ -57,6 +57,11 @@ private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
             listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
             issuer_isso
         )
+        "local" -> IssuerProperties(
+            URL("http://localhost:8080/default"),
+            listOf("audience"),
+            issuer_isso
+        )
         else -> throw RuntimeException("Ukjent cluster")
     }
 

@@ -3,6 +3,8 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 import io.github.cdimascio.dotenv.dotenv
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
+import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.security.mock.oauth2.OAuth2Config
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -26,6 +28,9 @@ fun main() {
 
     if (environment["NAIS_CLUSTER_NAME"] == "local") {
         log("main").warn("Applikasjonen settes opp med konfigurasjon for lokal kjøring")
+        val server = MockOAuth2Server()
+        server.start()
+        log("Main").info("BaseUrl: ${server.baseUrl()}")
     } else {
         val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
         lagSikkerhetsfilter(javalin, tillatteUrl)

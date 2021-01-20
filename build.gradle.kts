@@ -22,4 +22,5 @@ dependencies {
     implementation("io.javalin:javalin:3.12.0")
     implementation("net.logstash.logback:logstash-logback-encoder:6.3")
     implementation("no.nav.security:token-validation-core:1.3.2")
+    implementation("no.nav.security:mock-oauth2-server:0.2.0")
 }
