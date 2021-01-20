@@ -1,5 +1,6 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
+import io.github.cdimascio.dotenv.dotenv
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import org.slf4j.Logger
@@ -10,17 +11,26 @@ val Any.log: Logger
 
 fun log(name: String): Logger = LoggerFactory.getLogger(name)
 
+val environment = dotenv { ignoreIfMissing = true }
+
 fun main() {
     log("main").info("Starter applikasjon")
 
-    val port = (System.getenv("JAVALIN_PORT") ?: "8300").toInt()
+    val port = environment["JAVALIN_PORT"].toInt()
     val aliveUrl = "http://localhost:${port}/internal/isAlive"
     val readyUrl = "http://localhost:${port}/internal/isReady"
 
     val javalin = Javalin.create().start(port)
 
-    val security = Security()
-    security.lagSikkerhetsfilter(javalin, listOf(aliveUrl, readyUrl))
+    if (environment["NAIS_CLUSTER_NAME"] == "local") {
+        log("main").warn("Applikasjonen settes opp med konfigurasjon for lokal kjøring")
+        javalin.before { context ->
+            context.cookieStore("innloggetVeileder", Security.InnloggetVeileder("brukernavn", "visningsnavn", "navident"))
+        }
+    } else {
+        val security = Security()
+        security.lagSikkerhetsfilter(javalin, listOf(aliveUrl, readyUrl))
+    }
 
     javalin.routes {
         get(aliveUrl) { it.status(200) }

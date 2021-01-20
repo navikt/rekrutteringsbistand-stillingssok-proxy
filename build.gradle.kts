@@ -18,6 +18,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")
     implementation("io.javalin:javalin:3.12.0")
     implementation("net.logstash.logback:logstash-logback-encoder:6.3")
     implementation("no.nav.security:token-validation-core:1.3.2")

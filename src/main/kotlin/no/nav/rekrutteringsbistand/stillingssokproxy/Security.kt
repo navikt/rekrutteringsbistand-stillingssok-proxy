@@ -49,7 +49,7 @@ class Security {
     }
 
     private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
-        val properties = when (System.getenv("NAIS_CLUSTER_NAME")) {
+        val properties = when (environment["NAIS_CLUSTER_NAME"]) {
             "dev-gcp" -> IssuerProperties(
                 URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration"),
                 listOf("38e07d31-659d-4595-939a-f18dce3446c5"),
