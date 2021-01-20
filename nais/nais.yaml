@@ -28,8 +28,6 @@ spec:
     instance: rekrutteringsbistand-stilling
   # Legg til envFrom: secret
   env:
-    - name: JAVALIN_PORT
-      value: "8300"
     - name: ELASTIC_SEARCH_API
       value: {{elastic-search-api}}
     - name: PROXY_VERSJON

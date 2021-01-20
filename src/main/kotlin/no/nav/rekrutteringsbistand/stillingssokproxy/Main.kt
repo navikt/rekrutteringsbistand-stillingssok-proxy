@@ -16,7 +16,7 @@ val environment = dotenv { ignoreIfMissing = true }
 fun main() {
     log("main").info("Starter applikasjon")
 
-    val port = environment["JAVALIN_PORT"].toInt()
+    val port = 8300
 
     val urlBaseInternal = "http://localhost:$port"
     val aliveUrl = "/internal/isAlive"
