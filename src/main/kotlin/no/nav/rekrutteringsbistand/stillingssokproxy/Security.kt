@@ -2,6 +2,7 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import io.javalin.Javalin
 import io.javalin.http.Context
+import io.javalin.http.ForbiddenResponse
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
@@ -23,7 +24,7 @@ fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
                 val veileder = innloggetVeileder(context)
                 context.cookieStore("innloggetVeileder", veileder)
             } catch (e: Exception) {
-                context.status(403)
+                throw ForbiddenResponse()
             }
         }
     }
