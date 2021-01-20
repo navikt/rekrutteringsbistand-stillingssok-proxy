@@ -17,6 +17,8 @@ fun main() {
     log("main").info("Starter applikasjon")
 
     val port = environment["JAVALIN_PORT"].toInt()
+
+    val urlBaseInternal = "http://localhost:$port"
     val aliveUrl = "/internal/isAlive"
     val readyUrl = "/internal/isReady"
 
@@ -29,7 +31,8 @@ fun main() {
         }
     } else {
         val security = Security()
-        security.lagSikkerhetsfilter(javalin, listOf(aliveUrl, readyUrl))
+        val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
+        security.lagSikkerhetsfilter(javalin, tillatteUrl)
     }
 
     javalin.routes {

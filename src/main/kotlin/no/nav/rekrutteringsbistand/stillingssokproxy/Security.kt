@@ -17,7 +17,7 @@ class Security {
         javalin.before { context ->
             val url: String = context.req.requestURL.toString()
 
-            val erÅpenUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
+            val erÅpenUrl = tillateUrl.contains(url)
 
             if (!erÅpenUrl) {
                 try {
