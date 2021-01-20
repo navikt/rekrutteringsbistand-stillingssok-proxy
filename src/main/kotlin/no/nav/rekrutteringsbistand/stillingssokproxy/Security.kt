@@ -43,7 +43,6 @@ private fun innloggetVeileder(context: Context): InnloggetVeileder {
     )
     innloggetVeileder.validate()
 
-    log("Sikkerhetsfilter").info("InnloggetVeileder: $innloggetVeileder")
     return innloggetVeileder
 }
 
