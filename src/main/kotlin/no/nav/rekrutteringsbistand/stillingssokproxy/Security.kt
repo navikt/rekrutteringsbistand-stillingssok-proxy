@@ -21,8 +21,7 @@ fun lagSikkerhetsfilter(javalin: Javalin, tillateUrl: List<String>) {
 
         if (!erÅpenUrl) {
             try {
-                val veileder = innloggetVeileder(context)
-                context.cookieStore("innloggetVeileder", veileder)
+                innloggetVeileder(context)
             } catch (e: Exception) {
                 throw ForbiddenResponse()
             }
@@ -37,9 +36,9 @@ private fun innloggetVeileder(context: Context): InnloggetVeileder {
     val claims = tokenValidationContext.getClaims(issuer_isso)
 
     val innloggetVeileder = InnloggetVeileder(
-        claims["unique_name"].toString(),
-        claims["name"].toString(),
-        claims["NAVident"].toString()
+        userName = claims["unique_name"].toString(),
+        displayName = claims["name"].toString(),
+        navIdent = claims["NAVident"].toString()
     )
     innloggetVeileder.validate()
 

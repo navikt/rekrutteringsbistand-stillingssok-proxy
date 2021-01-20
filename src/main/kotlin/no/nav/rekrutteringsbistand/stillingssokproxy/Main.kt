@@ -26,9 +26,6 @@ fun main() {
 
     if (environment["NAIS_CLUSTER_NAME"] == "local") {
         log("main").warn("Applikasjonen settes opp med konfigurasjon for lokal kjøring")
-        javalin.before { context ->
-            context.cookieStore("innloggetVeileder", InnloggetVeileder("brukernavn", "visningsnavn", "navident"))
-        }
     } else {
         val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
         lagSikkerhetsfilter(javalin, tillatteUrl)
