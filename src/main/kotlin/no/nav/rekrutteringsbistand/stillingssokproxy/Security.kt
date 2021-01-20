@@ -66,13 +66,11 @@ private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
 
 private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
     override fun getHeader(headerName: String?) = context.headerMap()[headerName]
-    override fun getCookies() =
-        context.cookieMap().map { (name, value) -> NameValueImpl(Cookie(name, value)) }.toTypedArray()
-}
-
-private class NameValueImpl(val cookie: Cookie) : HttpRequest.NameValue {
-    override fun getName() = cookie.name
-    override fun getValue() = cookie.value
+    override fun getCookies() = context.cookieMap().map { (name, value) ->
+        object: HttpRequest.NameValue {
+            override fun getName() = name
+            override fun getValue() = value
+        }}.toTypedArray()
 }
 
 data class InnloggetVeileder(
