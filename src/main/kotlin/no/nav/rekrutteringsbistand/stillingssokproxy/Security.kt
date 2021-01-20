@@ -8,7 +8,6 @@ import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 import java.net.URL
-import javax.servlet.http.Cookie
 
 
 private val issuer_isso = "isso-idtoken"
@@ -57,7 +56,7 @@ private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
             listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
             issuer_isso
         )
-        "local" -> IssuerProperties(
+        "test" -> IssuerProperties(
             URL("http://localhost:18300/isso-idtoken/.well-known/openid-configuration"),
             listOf("audience"),
             issuer_isso
