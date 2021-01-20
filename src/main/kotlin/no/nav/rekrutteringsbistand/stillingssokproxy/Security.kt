@@ -58,14 +58,16 @@ private fun getMultiIssuerConfiguration(): MultiIssuerConfiguration {
             issuer_isso
         )
         "local" -> IssuerProperties(
-            URL("http://localhost:8080/default"),
+            URL("http://localhost:18300/isso-idtoken/.well-known/openid-configuration"),
             listOf("audience"),
             issuer_isso
         )
         else -> throw RuntimeException("Ukjent cluster")
     }
+    log("temp").info("env: ${environment["NAIS_CLUSTER_NAME"]} props: $properties")
 
-    return MultiIssuerConfiguration(mapOf(Pair(issuer_isso, properties)))
+    val multiIssuerConfiguration = MultiIssuerConfiguration(mapOf(Pair(issuer_isso, properties)))
+    return multiIssuerConfiguration
 }
 
 private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
