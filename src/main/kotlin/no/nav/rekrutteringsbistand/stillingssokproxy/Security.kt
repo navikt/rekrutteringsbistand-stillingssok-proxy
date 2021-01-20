@@ -17,12 +17,9 @@ class Security {
         javalin.before { context ->
             val url: String = context.req.requestURL.toString()
 
-            log("Security").info("Sjekker om URL $url er tillatt")
-            val erÅpenUrl = tillateUrl.contains(url)
-            log("Security").info("Er åpen: $erÅpenUrl")
+            val erÅpenUrl = tillateUrl.any { tillattUrl -> url.contains(tillattUrl) }
 
             if (!erÅpenUrl) {
-                log("Security").info("bruker sikkerhetsfilter for url: $url")
                 try {
                     val veileder = innloggetVeileder(context)
                     context.cookieStore("innloggetVeileder", veileder)

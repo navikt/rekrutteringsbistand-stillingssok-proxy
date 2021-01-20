@@ -17,8 +17,8 @@ fun main() {
     log("main").info("Starter applikasjon")
 
     val port = environment["JAVALIN_PORT"].toInt()
-    val aliveUrl = "http://localhost:${port}/internal/isAlive"
-    val readyUrl = "http://localhost:${port}/internal/isReady"
+    val aliveUrl = "/internal/isAlive"
+    val readyUrl = "/internal/isReady"
 
     val javalin = Javalin.create().start(port)
 
@@ -33,14 +33,8 @@ fun main() {
     }
 
     javalin.routes {
-        get(aliveUrl) { context ->
-            log("Main").info("Sjekker isAlive")
-            context.status(200)
-        }
-        get(readyUrl) { context ->
-            log("Main").info("Sjekker isReady")
-            context.status(200)
-        }
+        get(aliveUrl) { it.status(200) }
+        get(readyUrl) { it.status(200) }
         get("/test") { it.status(200) }
     }
 }
