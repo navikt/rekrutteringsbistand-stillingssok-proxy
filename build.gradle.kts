@@ -30,4 +30,5 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.18.1")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+    testImplementation ("com.github.tomakehurst:wiremock-jre8:2.27.2")
 }
