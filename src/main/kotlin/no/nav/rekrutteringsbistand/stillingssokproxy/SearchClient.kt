@@ -1,5 +1,6 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
+import io.javalin.http.InternalServerErrorResponse
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -18,8 +19,14 @@ fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): St
     val client = getRestHighLevelClient()
     log("SearchClient").info("Har laget ES-klient")
     val request = elasticSearchRequest("POST", "$indeks/_search", params, jsonbody)
-    val responseEntity = client.lowLevelClient.performRequest(request).entity;
-    return EntityUtils.toString(responseEntity)
+
+    try {
+        val responseEntity = client.lowLevelClient.performRequest(request).entity;
+        return EntityUtils.toString(responseEntity)
+    } catch (e: Exception) {
+        log("SearchClient").error("Kunne ikke gjøre kall mot ElasticSearch")
+        throw InternalServerErrorResponse()
+    }
 }
 
 private fun elasticSearchRequest(method: String, endpoint: String, params: Map<String, List<String>>, body: String) =
