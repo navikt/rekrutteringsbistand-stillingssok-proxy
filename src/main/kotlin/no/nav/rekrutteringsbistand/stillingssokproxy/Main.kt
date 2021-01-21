@@ -20,13 +20,14 @@ val readyUrl = "/internal/isReady"
 
 fun startApp(kjøremiljø: Kjøremiljø) {
     val javalin = Javalin.create()
+    val indeks = "stilling_6"
 
     javalin.routes {
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
         get("/test") { it.status(200) }
         post("/__search") { context ->
-            val resultat = sok(context.body(), context.queryParamMap())
+            val resultat = sok(context.body(), context.queryParamMap(), indeks)
             context.json(resultat)
         }
     }
