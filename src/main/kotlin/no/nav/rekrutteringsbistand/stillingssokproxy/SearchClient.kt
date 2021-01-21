@@ -24,7 +24,7 @@ fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): St
         val responseEntity = client.lowLevelClient.performRequest(request).entity;
         return EntityUtils.toString(responseEntity)
     } catch (e: Exception) {
-        log("SearchClient").error(e.printStackTrace().toString())
+        log("SearchClient").error("Kan ikke gjøre kall mot ElasticSearch", e)
         throw InternalServerErrorResponse()
     }
 }
