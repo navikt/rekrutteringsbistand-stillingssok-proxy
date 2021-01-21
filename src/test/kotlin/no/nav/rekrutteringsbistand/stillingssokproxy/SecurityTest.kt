@@ -3,7 +3,6 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.jackson.responseObject
-import com.sun.tools.javac.Main
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.assertj.core.api.Assertions.assertThat
@@ -22,7 +21,7 @@ class SecurityTest {
 
     @BeforeAll
     fun init() {
-        Main.main(arrayOf())
+        startApp(Kjøremiljø.TEST)
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
     }
 

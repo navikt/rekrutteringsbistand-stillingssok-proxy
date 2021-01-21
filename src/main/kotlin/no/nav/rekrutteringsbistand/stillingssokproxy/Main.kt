@@ -17,7 +17,7 @@ val urlBaseInternal = "http://localhost:$port"
 val aliveUrl = "/internal/isAlive"
 val readyUrl = "/internal/isReady"
 
-fun settOppJavalin(): Javalin {
+fun startApp(kjøremiljø: Kjøremiljø) {
     val javalin = Javalin.create()
 
     javalin.routes {
@@ -26,13 +26,15 @@ fun settOppJavalin(): Javalin {
         get("/test") { it.status(200) }
     }
 
-    return javalin
+    if (kjøremiljø != Kjøremiljø.LOCAL) {
+        val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
+        lagSikkerhetsfilter(javalin, kjøremiljø, tillatteUrl)
+    }
+
+    javalin.start(port)
 }
 
 fun main() {
-    val javalin = settOppJavalin()
-    javalin.start(port)
-
-    val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
-    lagSikkerhetsfilter(javalin, tillatteUrl)
+    val kjøremiljø = Kjøremiljø.valueOf(environment["NAIS_CLUSTER_NAME"])
+    startApp(kjøremiljø)
 }
