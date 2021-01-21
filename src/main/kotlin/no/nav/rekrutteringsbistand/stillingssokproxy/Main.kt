@@ -35,6 +35,6 @@ fun startApp(kjøremiljø: Kjøremiljø) {
 }
 
 fun main() {
-    val kjøremiljø = Kjøremiljø.valueOf(environment["NAIS_CLUSTER_NAME"])
+    val kjøremiljø = Kjøremiljø.opprett(environment["NAIS_CLUSTER_NAME"])
     startApp(kjøremiljø)
 }
