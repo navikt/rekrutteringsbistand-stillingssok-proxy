@@ -1,0 +1,27 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: rekrutteringsbistand-stillingssok-proxy
+  namespace: arbeidsgiver
+  labels:
+    team: arbeidsgiver
+spec:
+  image: {{image}}
+  port: 8300
+  ingresses:
+  {{#each ingress as |url|}}
+      - {{url}}
+  {{/each}}
+  liveness:
+    path: /internal/isAlive
+  readiness:
+    path: /internal/isReady
+  azure:
+    application:
+      enabled: true
+  elastic:
+    instance: rekrutteringsbistand-stilling
+  # Legg til envFrom: secret
+  env:
+    - name: ELASTIC_SEARCH_API
+      value: {{elastic-search-api}}
