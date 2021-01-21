@@ -1,8 +1,8 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
-enum class Kjøremiljø {
-    DEV_GCP,
-    PROD_GCP,
-    TEST,
-    LOCAL
+enum class Kjøremiljø(val value: String) {
+    DEV_GCP("dev-gcp"),
+    PROD_GCP("prod-gcp"),
+    TEST("test"),
+    LOCAL("local");
 }
