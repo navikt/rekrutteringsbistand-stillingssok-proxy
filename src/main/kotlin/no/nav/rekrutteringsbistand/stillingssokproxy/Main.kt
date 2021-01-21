@@ -4,8 +4,10 @@ import io.github.cdimascio.dotenv.dotenv
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
+import io.javalin.plugin.json.JavalinJson
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.charset.Charset
 
 val Any.log: Logger
     get() = LoggerFactory.getLogger(this::class.java)
@@ -28,7 +30,7 @@ fun startApp(kjøremiljø: Kjøremiljø) {
         get("/test") { it.status(200) }
         post("/_search") { context ->
             val resultat = sok(context.body(), context.queryParamMap(), indeks)
-            context.json(resultat)
+            context.result(resultat)
         }
     }
 
