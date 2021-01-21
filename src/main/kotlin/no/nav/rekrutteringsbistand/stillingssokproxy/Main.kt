@@ -3,6 +3,7 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 import io.github.cdimascio.dotenv.dotenv
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
+import io.javalin.apibuilder.ApiBuilder.post
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -24,6 +25,10 @@ fun startApp(kjøremiljø: Kjøremiljø) {
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
         get("/test") { it.status(200) }
+        post("/__search") { context ->
+            sok(context.body(), context.queryParamMap())
+            context.result("")
+        }
     }
 
     if (kjøremiljø != Kjøremiljø.LOCAL) {
