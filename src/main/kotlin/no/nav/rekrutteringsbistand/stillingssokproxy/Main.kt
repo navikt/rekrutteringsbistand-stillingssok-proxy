@@ -26,7 +26,7 @@ fun startApp(kjøremiljø: Kjøremiljø) {
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
         get("/test") { it.status(200) }
-        post("/__search") { context ->
+        post("/_search") { context ->
             val resultat = sok(context.body(), context.queryParamMap(), indeks)
             context.json(resultat)
         }
