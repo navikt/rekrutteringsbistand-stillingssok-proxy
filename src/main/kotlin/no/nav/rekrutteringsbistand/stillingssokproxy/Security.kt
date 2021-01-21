@@ -61,8 +61,6 @@ private fun getMultiIssuerConfiguration(kjøremiljø: Kjøremiljø): MultiIssuer
         )
         else -> throw RuntimeException("Ukjent cluster")
     }
-    log("temp").info("env: ${environment["NAIS_CLUSTER_NAME"]} props: $properties")
-
     val multiIssuerConfiguration = MultiIssuerConfiguration(mapOf(Pair(issuer_isso, properties)))
     return multiIssuerConfiguration
 }
