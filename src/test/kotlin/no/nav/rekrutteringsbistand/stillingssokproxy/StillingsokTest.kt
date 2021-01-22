@@ -33,7 +33,7 @@ class StillingsokTest {
             .bearer(token.serialize())
             .responseString(Charset.defaultCharset())
         assertThat(response.statusCode).isEqualTo(200)
-        assertThat(response.body()).isEqualTo(jsonResultat)
+        assertThat(response.body().asString("application/json")).isEqualTo(jsonResultat)
     }
 
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
