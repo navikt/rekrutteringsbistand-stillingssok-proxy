@@ -21,7 +21,7 @@ class StillingsokTest {
 
     @BeforeAll
     fun init() {
-        startApp(Kjøremiljø.TEST)
+        startAppForTest()
         startEsMock()
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
     }

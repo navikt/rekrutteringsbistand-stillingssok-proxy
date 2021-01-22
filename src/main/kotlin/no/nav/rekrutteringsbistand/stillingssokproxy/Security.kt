@@ -9,23 +9,21 @@ import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 
-
-private val issuer_isso = "isso-idtoken"
-
 fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, tillateUrl: List<String>) {
     javalin.before { context ->
         val url: String = context.req.requestURL.toString()
+        val endepunktTillattUtenAutentisering = tillateUrl.contains(url)
 
-        val erÅpenUrl = tillateUrl.contains(url)
-
-        if (!erÅpenUrl) {
+        if (!endepunktTillattUtenAutentisering) {
             try {
+                val cookieName = issuerProperties.cookieName
                 val tokenValidationHandler =
-                    JwtTokenValidationHandler(MultiIssuerConfiguration(mapOf(Pair(issuer_isso, issuerProperties))))
+                    JwtTokenValidationHandler(MultiIssuerConfiguration(mapOf(Pair(cookieName, issuerProperties))))
                 val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
-                val claims = tokenValidationContext.getClaims(issuer_isso)
+                val claims = tokenValidationContext.getClaims(cookieName)
                 opprettInnloggetVeileder(claims)
             } catch (e: Exception) {
+                log("Security").info("Kunne ikke autentisere request, fikk exception av typen ${e.javaClass}")
                 throw ForbiddenResponse()
             }
         }
@@ -57,9 +55,8 @@ data class InnloggetVeileder(
 ) {
 
     fun validate() {
-        if (listOf<String>(userName, displayName, navIdent).any { s -> s.isEmpty() }) {
+        if (listOf(userName, displayName, navIdent).any { s -> s.isEmpty() }) {
             throw RuntimeException("Ugyldig token")
         }
     }
-
 }

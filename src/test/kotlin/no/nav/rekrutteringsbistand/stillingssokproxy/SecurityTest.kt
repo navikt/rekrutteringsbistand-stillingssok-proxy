@@ -21,7 +21,7 @@ class SecurityTest {
 
     @BeforeAll
     fun init() {
-        startApp(Kjøremiljø.TEST)
+        startAppForTest()
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
     }
 

@@ -11,6 +11,10 @@ application {
     mainClassName = "no.nav.rekrutteringsbistand.stillingssokproxy.MainKt"
 }
 
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 repositories {
     mavenCentral()
 }

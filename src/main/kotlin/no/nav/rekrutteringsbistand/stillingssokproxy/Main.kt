@@ -29,30 +29,27 @@ fun startApp(
     val javalin = Javalin.create()
     val indeks = "stilling"
 
+    val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
+    opprettSikkerhetsfilter(javalin, issuerProperties, tillatteUrl)
+
     javalin.routes {
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
-        get("/test") { it.status(200) }
         post("/_search") { context ->
             val resultat = sok(context.body(), context.queryParamMap(), indeks)
             context.result(resultat)
         }
-    }
-    val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
-    opprettSikkerhetsfilter(javalin, issuerProperties, tillatteUrl)
-
-    javalin.start(port)
+    }.start(port)
 }
 
 fun main() {
-    val kjøremiljø = Kjøremiljø.opprett(environment["NAIS_CLUSTER_NAME"])
-    val issuerProperties = when (kjøremiljø) {
-        Kjøremiljø.DEV_GCP -> IssuerProperties(
+    val issuerProperties = when (environment["NAIS_CLUSTER_NAME"]) {
+        "dev-gcp" -> IssuerProperties(
             URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration"),
             listOf("38e07d31-659d-4595-939a-f18dce3446c5"),
             issuer_isso
         )
-        Kjøremiljø.PROD_GCP -> IssuerProperties(
+        "prod-gcp" -> IssuerProperties(
             URL("https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration"),
             listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
             issuer_isso
