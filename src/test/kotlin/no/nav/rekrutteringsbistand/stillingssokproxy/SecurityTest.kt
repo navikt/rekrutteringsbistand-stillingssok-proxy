@@ -50,6 +50,26 @@ class SecurityTest {
     }
 
     @Test
+    fun `Kall med ugyldig token mot beskyttet endepunkt skal returnere 403`() {
+        val ugyldigToken = hentUgyldigToken(mockOAuth2Server)
+        val fuelHttpClient = FuelManager()
+        val (_, response) = fuelHttpClient.post(urlSomKreverAutentisering).authentication()
+            .bearer(ugyldigToken.serialize())
+            .responseObject<String>()
+        assertThat(response.statusCode).isEqualTo(403)
+    }
+
+    @Test
+    fun `Kall med token uten claim for NAV-ident mot beskyttet endepunkt skal returnere 403`() {
+        val tokenUtenNavIdentClaim = hentTokenUtenNavIdentClaim(mockOAuth2Server)
+        val fuelHttpClient = FuelManager()
+        val (_, response) = fuelHttpClient.post(urlSomKreverAutentisering).authentication()
+            .bearer(tokenUtenNavIdentClaim.serialize())
+            .responseObject<String>()
+         assertThat(response.statusCode).isEqualTo(403)
+    }
+
+    @Test
     fun `Skal kunne kalle endepunkt for isAlive uten å være autentisert`() {
         val fuelHttpClient = FuelManager()
         val (_, response) = fuelHttpClient.get(isAliveUrl)
@@ -72,7 +92,29 @@ class SecurityTest {
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
+                ),
+            audience = listOf("audience")
+        )
+    )
 
+    private fun hentUgyldigToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("feilissuer", "someclientid",
+        DefaultOAuth2TokenCallback(
+            issuerId = "feilissuer",
+            claims = mapOf(
+                Pair("name", "navn"),
+                Pair("NAVident", "NAVident"),
+                Pair("unique_name", "unique_name"),
+                ),
+            audience = listOf("audience")
+        )
+    )
+
+    private fun hentTokenUtenNavIdentClaim(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
+        DefaultOAuth2TokenCallback(
+            issuerId = "isso-idtoken",
+            claims = mapOf(
+                Pair("name", "navn"),
+                Pair("unique_name", "unique_name"),
                 ),
             audience = listOf("audience")
         )

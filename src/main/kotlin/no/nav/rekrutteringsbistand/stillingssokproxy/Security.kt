@@ -15,28 +15,23 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, ti
         val endepunktTillattUtenAutentisering = tillateUrl.contains(url)
 
         if (!endepunktTillattUtenAutentisering) {
-            try {
-                val cookieName = issuerProperties.cookieName
-                val tokenValidationHandler =
-                    JwtTokenValidationHandler(MultiIssuerConfiguration(mapOf(Pair(cookieName, issuerProperties))))
-                val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
-                val claims = tokenValidationContext.getClaims(cookieName)
-                opprettInnloggetVeileder(claims)
-            } catch (e: Exception) {
-                log("Security").info("Kunne ikke autentisere request, fikk exception av typen ${e.javaClass}")
+            val cookieName = issuerProperties.cookieName
+            val tokenValidationHandler =
+                JwtTokenValidationHandler(MultiIssuerConfiguration(mapOf(Pair(cookieName, issuerProperties))))
+            val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
+            val claims = tokenValidationContext.getClaims(cookieName)
+
+            if (!tokenErGyldig(claims)) {
                 throw ForbiddenResponse()
             }
         }
     }
 }
 
-private fun opprettInnloggetVeileder(claims: JwtTokenClaims) =
-    InnloggetVeileder(
-        userName = claims["unique_name"].toString(),
-        displayName = claims["name"].toString(),
-        navIdent = claims["NAVident"].toString()
-    ).apply { validate() }
-
+fun tokenErGyldig(claims: JwtTokenClaims?): Boolean {
+    if (claims == null || claims["NAVident"] == null) return false
+    return claims["NAVident"].toString().isNotEmpty()
+}
 
 private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
     override fun getHeader(headerName: String?) = context.headerMap()[headerName]
@@ -46,17 +41,4 @@ private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest
             override fun getValue() = value
         }
     }.toTypedArray()
-}
-
-data class InnloggetVeileder(
-    val userName: String,
-    val displayName: String,
-    val navIdent: String
-) {
-
-    fun validate() {
-        if (listOf(userName, displayName, navIdent).any { s -> s.isEmpty() }) {
-            throw RuntimeException("Ugyldig token")
-        }
-    }
 }
