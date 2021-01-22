@@ -22,7 +22,7 @@ val readyUrl = "/internal/isReady"
 
 fun startApp(kjøremiljø: Kjøremiljø) {
     val javalin = Javalin.create()
-    val indeks = "stilling_6"
+    val indeks = "stilling"
 
     javalin.routes {
         get(aliveUrl) { it.status(200) }
