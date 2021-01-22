@@ -1,5 +1,6 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
+import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.jackson.responseObject
@@ -10,29 +11,30 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.net.InetAddress
+import java.nio.charset.Charset
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StillingsokTest {
 
     val mockOAuth2Server = MockOAuth2Server()
-    val searchurl = "http://localhost:8300/__search"
+    val searchurl = "http://localhost:8300/_search"
 
     @BeforeAll
     fun init() {
         startApp(Kjøremiljø.TEST)
+        startEsMock()
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
     }
 
-//    @Test
-//    fun `Kall med autentisert bruker mot beskyttet endepunkt skal returnere 200`() {
-//        val token = hentToken(mockOAuth2Server)
-//        val fuelHttpClient = FuelManager()
-//        val (_, response, result) = fuelHttpClient.post(searchurl).authentication()
-//            .bearer(token.serialize())
-//            .responseObject<String>()
-//        assertThat(response.statusCode).isEqualTo(200)
-//        assertThat(result.get()).isEqualTo("svar")
-//    }
+    @Test
+    fun `Søkekall til appen skal videresende søk til ES og returnere svar fra ES uten endringer`() {
+        val token = hentToken(mockOAuth2Server)
+        val (_, response, result) = Fuel.post(searchurl).authentication()
+            .bearer(token.serialize())
+            .responseString()
+        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(result.get()).isEqualTo(jsonResultat)
+    }
 
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
         DefaultOAuth2TokenCallback(
@@ -41,7 +43,6 @@ class StillingsokTest {
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
-
                 ),
             audience = listOf("audience")
         )

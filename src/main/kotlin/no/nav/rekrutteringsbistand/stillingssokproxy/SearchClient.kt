@@ -17,8 +17,9 @@ import org.elasticsearch.client.RestHighLevelClient
 
 fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): String {
     val client = getRestHighLevelClient()
-    log("SearchClient").info("Har laget ES-klient")
-    val request = elasticSearchRequest("GET", "$indeks/_search", params, jsonbody)
+    val request = elasticSearchRequest("GET", "$indeks/_ttt", params, jsonbody)
+
+    log("SearchClient").info("SKAL GJØRE KALL MOT ES-ENDEPUNKT: ${request.endpoint}")
 
     try {
         val responseEntity = client.lowLevelClient.performRequest(request).entity;
