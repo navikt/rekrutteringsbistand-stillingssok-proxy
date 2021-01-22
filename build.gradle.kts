@@ -23,6 +23,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:6.3")
     implementation("no.nav.security:token-validation-core:1.3.2")
     implementation("no.nav.security:mock-oauth2-server:0.2.0")
+    implementation("org.elasticsearch.client:elasticsearch-rest-high-level-client:7.10.1")
 
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.0")
     testImplementation("com.github.kittinunf.fuel:fuel-jackson:2.3.0")

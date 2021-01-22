@@ -21,7 +21,8 @@ spec:
       enabled: true
   elastic:
     instance: rekrutteringsbistand-stilling
-  # Legg til envFrom: secret
+  envFrom:
+    - secret: rekrutteringsbistand-stillingssok-proxy-es-credentials
   env:
     - name: ELASTIC_SEARCH_API
       value: {{elastic-search-api}}
