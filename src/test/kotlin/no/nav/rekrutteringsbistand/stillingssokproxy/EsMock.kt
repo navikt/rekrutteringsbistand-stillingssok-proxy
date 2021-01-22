@@ -1,16 +1,27 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
+import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder
 
-fun startEsMock() {
-    val javalin = Javalin.create().start(9000)
-    javalin.routes {
-        ApiBuilder.get("indeks_6/_search") { context ->
-            context.result(jsonResultat)
-        }
-    }
+fun main() {
+    startEsMock()
 }
+
+fun startEsMock() {
+    val wiremock = WireMockServer(wireMockConfig().port(9000))
+    wiremock.start()
+}
+
+//fun startEsMock() {
+//    val javalin = Javalin.create().start(9000)
+//    javalin.routes {
+//        ApiBuilder.get("*/_search") { context ->
+//            context.result(jsonResultat).contentType("application/json")
+//        }
+//    }
+//}
 
 private val jsonResultat = """
     {
