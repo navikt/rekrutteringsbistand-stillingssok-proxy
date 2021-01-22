@@ -27,13 +27,13 @@ class StillingsokTest {
     }
 
     @Test
-    fun `Kall med autentisert bruker mot beskyttet endepunkt skal returnere 200`() {
+    fun `Søkekall til appen skal videresende søk til ES og returnere svar fra ES uten endringer`() {
         val token = hentToken(mockOAuth2Server)
         val (_, response, result) = Fuel.post(searchurl).authentication()
             .bearer(token.serialize())
-            .responseString(Charset.defaultCharset())
+            .responseString()
         assertThat(response.statusCode).isEqualTo(200)
-        assertThat(response.body().asString("application/json")).isEqualTo(jsonResultat)
+        assertThat(result.get()).isEqualTo(jsonResultat)
     }
 
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
