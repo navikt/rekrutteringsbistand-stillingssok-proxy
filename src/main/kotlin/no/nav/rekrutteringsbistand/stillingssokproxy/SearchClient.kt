@@ -19,8 +19,6 @@ fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): St
     val client = getRestHighLevelClient()
     val request = elasticSearchRequest("GET", "$indeks/_search", params, jsonbody)
 
-    log("SearchClient").info("SKAL GJØRE KALL MOT ES-ENDEPUNKT: ${request.endpoint}")
-
     try {
         val responseEntity = client.lowLevelClient.performRequest(request).entity;
         return EntityUtils.toString(responseEntity)
