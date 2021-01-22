@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.net.InetAddress
+import java.nio.charset.Charset
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StillingsokTest {
@@ -30,9 +31,9 @@ class StillingsokTest {
         val token = hentToken(mockOAuth2Server)
         val (_, response, result) = Fuel.post(searchurl).authentication()
             .bearer(token.serialize())
-            .responseObject<String>()
+            .responseString(Charset.defaultCharset())
         assertThat(response.statusCode).isEqualTo(200)
-        assertThat(result.get()).isEqualTo("svar")
+        assertThat(response.body()).isEqualTo(jsonResultat)
     }
 
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
@@ -42,7 +43,6 @@ class StillingsokTest {
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
-
                 ),
             audience = listOf("audience")
         )
