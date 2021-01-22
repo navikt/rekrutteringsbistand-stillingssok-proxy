@@ -8,12 +8,11 @@ import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
-import java.net.URL
 
 
 private val issuer_isso = "isso-idtoken"
 
-fun lagSikkerhetsfilter(javalin: Javalin, kjøremiljø: Kjøremiljø, tillateUrl: List<String>) {
+fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, tillateUrl: List<String>) {
     javalin.before { context ->
         val url: String = context.req.requestURL.toString()
 
@@ -21,7 +20,8 @@ fun lagSikkerhetsfilter(javalin: Javalin, kjøremiljø: Kjøremiljø, tillateUrl
 
         if (!erÅpenUrl) {
             try {
-                val tokenValidationHandler = JwtTokenValidationHandler(getMultiIssuerConfiguration(kjøremiljø))
+                val tokenValidationHandler =
+                    JwtTokenValidationHandler(MultiIssuerConfiguration(mapOf(Pair(issuer_isso, issuerProperties))))
                 val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
                 val claims = tokenValidationContext.getClaims(issuer_isso)
                 opprettInnloggetVeileder(claims)
@@ -32,46 +32,22 @@ fun lagSikkerhetsfilter(javalin: Javalin, kjøremiljø: Kjøremiljø, tillateUrl
     }
 }
 
-private fun opprettInnloggetVeileder(claims: JwtTokenClaims): InnloggetVeileder {
-    val innloggetVeileder = InnloggetVeileder(
+private fun opprettInnloggetVeileder(claims: JwtTokenClaims) =
+    InnloggetVeileder(
         userName = claims["unique_name"].toString(),
         displayName = claims["name"].toString(),
         navIdent = claims["NAVident"].toString()
-    )
-    innloggetVeileder.validate()
-    return innloggetVeileder
-}
+    ).apply { validate() }
 
-private fun getMultiIssuerConfiguration(kjøremiljø: Kjøremiljø): MultiIssuerConfiguration {
-    val properties = when (kjøremiljø) {
-        Kjøremiljø.DEV_GCP -> IssuerProperties(
-            URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration"),
-            listOf("38e07d31-659d-4595-939a-f18dce3446c5"),
-            issuer_isso
-        )
-        Kjøremiljø.PROD_GCP-> IssuerProperties(
-            URL("https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration"),
-            listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
-            issuer_isso
-        )
-        Kjøremiljø.TEST -> IssuerProperties(
-            URL("http://localhost:18300/isso-idtoken/.well-known/openid-configuration"),
-            listOf("audience"),
-            issuer_isso
-        )
-        else -> throw RuntimeException("Ukjent cluster")
-    }
-    val multiIssuerConfiguration = MultiIssuerConfiguration(mapOf(Pair(issuer_isso, properties)))
-    return multiIssuerConfiguration
-}
 
 private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
     override fun getHeader(headerName: String?) = context.headerMap()[headerName]
     override fun getCookies() = context.cookieMap().map { (name, value) ->
-        object: HttpRequest.NameValue {
+        object : HttpRequest.NameValue {
             override fun getName() = name
             override fun getValue() = value
-        }}.toTypedArray()
+        }
+    }.toTypedArray()
 }
 
 data class InnloggetVeileder(

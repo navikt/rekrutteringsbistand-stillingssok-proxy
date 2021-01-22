@@ -4,10 +4,10 @@ import io.github.cdimascio.dotenv.dotenv
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
-import io.javalin.plugin.json.JavalinJson
+import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.nio.charset.Charset
+import java.net.URL
 
 val Any.log: Logger
     get() = LoggerFactory.getLogger(this::class.java)
@@ -20,7 +20,12 @@ val urlBaseInternal = "http://localhost:$port"
 val aliveUrl = "/internal/isAlive"
 val readyUrl = "/internal/isReady"
 
-fun startApp(kjøremiljø: Kjøremiljø) {
+private val issuer_isso = "isso-idtoken"
+
+fun startApp(
+    issuerProperties: IssuerProperties,
+    opprettSikkerhetsfilter: (javalin: Javalin, issuerProperties: IssuerProperties, tillateUrl: List<String>) -> Any
+) {
     val javalin = Javalin.create()
     val indeks = "stilling"
 
@@ -33,16 +38,26 @@ fun startApp(kjøremiljø: Kjøremiljø) {
             context.result(resultat)
         }
     }
-
-    if (kjøremiljø != Kjøremiljø.LOCAL) {
-        val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
-        lagSikkerhetsfilter(javalin, kjøremiljø, tillatteUrl)
-    }
+    val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
+    opprettSikkerhetsfilter(javalin, issuerProperties, tillatteUrl)
 
     javalin.start(port)
 }
 
 fun main() {
     val kjøremiljø = Kjøremiljø.opprett(environment["NAIS_CLUSTER_NAME"])
-    startApp(kjøremiljø)
+    val issuerProperties = when (kjøremiljø) {
+        Kjøremiljø.DEV_GCP -> IssuerProperties(
+            URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration"),
+            listOf("38e07d31-659d-4595-939a-f18dce3446c5"),
+            issuer_isso
+        )
+        Kjøremiljø.PROD_GCP -> IssuerProperties(
+            URL("https://login.microsoftonline.com/navno.onmicrosoft.com/.well-known/openid-configuration"),
+            listOf("9b4e07a3-4f4c-4bab-b866-87f62dff480d"),
+            issuer_isso
+        )
+        else -> throw RuntimeException("Ukjent cluster")
+    }
+    startApp(issuerProperties, ::lagSikkerhetsfilter)
 }
