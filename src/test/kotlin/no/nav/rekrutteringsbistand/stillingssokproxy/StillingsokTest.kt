@@ -1,5 +1,6 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
+import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.jackson.responseObject
@@ -15,24 +16,24 @@ import java.net.InetAddress
 class StillingsokTest {
 
     val mockOAuth2Server = MockOAuth2Server()
-    val searchurl = "http://localhost:8300/__search"
+    val searchurl = "http://localhost:8300/_search"
 
     @BeforeAll
     fun init() {
         startApp(Kjøremiljø.TEST)
+        startEsMock()
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
     }
 
-//    @Test
-//    fun `Kall med autentisert bruker mot beskyttet endepunkt skal returnere 200`() {
-//        val token = hentToken(mockOAuth2Server)
-//        val fuelHttpClient = FuelManager()
-//        val (_, response, result) = fuelHttpClient.post(searchurl).authentication()
-//            .bearer(token.serialize())
-//            .responseObject<String>()
-//        assertThat(response.statusCode).isEqualTo(200)
-//        assertThat(result.get()).isEqualTo("svar")
-//    }
+    @Test
+    fun `Kall med autentisert bruker mot beskyttet endepunkt skal returnere 200`() {
+        val token = hentToken(mockOAuth2Server)
+        val (_, response, result) = Fuel.post(searchurl).authentication()
+            .bearer(token.serialize())
+            .responseObject<String>()
+        assertThat(response.statusCode).isEqualTo(200)
+        assertThat(result.get()).isEqualTo("svar")
+    }
 
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
         DefaultOAuth2TokenCallback(
