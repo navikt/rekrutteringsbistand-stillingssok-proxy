@@ -6,6 +6,7 @@ import com.github.kittinunf.fuel.jackson.responseObject
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -15,21 +16,26 @@ import java.net.InetAddress
 class SecurityTest {
 
     val mockOAuth2Server = MockOAuth2Server()
-    val urlSomKreverAutentisering = "http://localhost:8300/test"
+    val urlSomKreverAutentisering = "http://localhost:8300/_search"
     val isAliveUrl = "http://localhost:8300/internal/isAlive"
     val isReadyUrl = "http://localhost:8300/internal/isReady"
 
     @BeforeAll
     fun init() {
-        startAppForTest()
+        LokalApplikasjon.startAppForTest()
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
+    }
+
+    @AfterAll
+    fun teardown() {
+        mockOAuth2Server.shutdown()
     }
 
     @Test
     fun `Kall med autentisert bruker mot beskyttet endepunkt skal returnere 200`() {
         val token = hentToken(mockOAuth2Server)
         val fuelHttpClient = FuelManager()
-        val (_, response) = fuelHttpClient.get(urlSomKreverAutentisering).authentication()
+        val (_, response) = fuelHttpClient.post(urlSomKreverAutentisering).authentication()
             .bearer(token.serialize())
             .responseObject<String>()
         assertThat(response.statusCode).isEqualTo(200)

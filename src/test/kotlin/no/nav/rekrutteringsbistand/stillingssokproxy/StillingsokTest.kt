@@ -7,6 +7,7 @@ import com.github.kittinunf.fuel.jackson.responseObject
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -21,9 +22,14 @@ class StillingsokTest {
 
     @BeforeAll
     fun init() {
-        startAppForTest()
-        startEsMock()
+        LokalApplikasjon.startAppForTest()
+        EsMock.startEsMock()
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
+    }
+
+    @AfterAll
+    fun teardown() {
+        mockOAuth2Server.shutdown()
     }
 
     @Test
@@ -33,7 +39,7 @@ class StillingsokTest {
             .bearer(token.serialize())
             .responseString()
         assertThat(response.statusCode).isEqualTo(200)
-        assertThat(result.get()).isEqualTo(jsonResultat)
+        assertThat(result.get()).isEqualTo(EsMock.jsonResultat)
     }
 
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",

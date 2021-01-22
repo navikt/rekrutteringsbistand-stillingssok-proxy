@@ -4,21 +4,27 @@ import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 
-fun startEsMock() {
-    ClientAndServer.startClientAndServer(9000)
-        .`when`(
-            request()
-                .withMethod("GET")
-                .withPath(".*")
-        )
-        .respond(
-            response()
-                .withStatusCode(200)
-                .withBody(jsonResultat)
-        )
-}
+object EsMock {
 
-val jsonResultat = """
+    var serverHasStarted = false
+
+    fun startEsMock() {
+        if (serverHasStarted) return
+        ClientAndServer.startClientAndServer(9000)
+            .`when`(
+                request()
+                    .withMethod("GET")
+                    .withPath(".*")
+            )
+            .respond(
+                response()
+                    .withStatusCode(200)
+                    .withBody(jsonResultat)
+            )
+        serverHasStarted = true
+    }
+
+    val jsonResultat = """
     {
       "took": 5,
       "timed_out": false,
@@ -139,3 +145,4 @@ val jsonResultat = """
       }
     }
 """.trimIndent()
+}
