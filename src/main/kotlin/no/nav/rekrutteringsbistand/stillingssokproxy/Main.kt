@@ -37,7 +37,9 @@ fun startApp(
         get(readyUrl) { it.status(200) }
         post("/_search") { context ->
             val resultat = sok(context.body(), context.queryParamMap(), indeks)
-            context.result(resultat)
+            context
+                .result(resultat)
+                .header("Content-type", "application/json")
         }
     }.start(port)
 }
