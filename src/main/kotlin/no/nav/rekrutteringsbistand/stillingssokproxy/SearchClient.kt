@@ -31,9 +31,9 @@ fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): So
         log("SearchClient").error("Feil ved kall mot ElasticSearch", e)
 
         when (e) {
-            is IOException -> SokeResultat(504, "Problem med tilkobling til ElasticSearch")
-            is ClientProtocolException -> SokeResultat(500, "Proxy har HTTP-protokollfeil mot ElasticSearch")
             is ResponseException -> SokeResultat(e.response.statusLine.statusCode, e.response.statusLine.reasonPhrase)
+            is ClientProtocolException -> SokeResultat(500, "Proxy har HTTP-protokollfeil mot ElasticSearch")
+            is IOException -> SokeResultat(504, "Problem med tilkobling til ElasticSearch")
             else -> throw InternalServerErrorResponse()
         }
     }
