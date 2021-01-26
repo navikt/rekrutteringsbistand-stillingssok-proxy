@@ -4,6 +4,7 @@ import io.javalin.http.InternalServerErrorResponse
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.client.ClientProtocolException
 import org.apache.http.client.CredentialsProvider
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.entity.ContentType
@@ -12,19 +13,29 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.apache.http.util.EntityUtils
 import org.elasticsearch.client.Request
+import org.elasticsearch.client.ResponseException
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
+import java.io.IOException
 
-fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): String {
+fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): SokeResultat {
     val client = getRestHighLevelClient()
     val request = elasticSearchRequest("GET", "$indeks/_search", params, jsonbody)
 
-    try {
-        val responseEntity = client.lowLevelClient.performRequest(request).entity;
-        return EntityUtils.toString(responseEntity)
+    return try {
+        val response = client.lowLevelClient.performRequest(request)
+        val statusKode = response.statusLine.statusCode
+        val resultat = if (statusKode == 200) EntityUtils.toString(response.entity) else response.statusLine.reasonPhrase
+        SokeResultat(statusKode, resultat)
     } catch (e: Exception) {
-        log("SearchClient").error("Kan ikke gjøre kall mot ElasticSearch", e)
-        throw InternalServerErrorResponse()
+        log("SearchClient").error("Feil ved kall mot ElasticSearch", e)
+
+        when (e) {
+            is IOException -> SokeResultat(504, "Problem med tilkobling til ElasticSearch")
+            is ClientProtocolException -> SokeResultat(500, "Proxy har HTTP-protokollfeil mot ElasticSearch")
+            is ResponseException -> SokeResultat(e.response.statusLine.statusCode, e.response.statusLine.reasonPhrase)
+            else -> throw InternalServerErrorResponse()
+        }
     }
 }
 
@@ -62,3 +73,8 @@ fun getRestHighLevelClient(): RestHighLevelClient {
             }
     )
 }
+
+data class SokeResultat(
+    val statuskode: Int,
+    val resultat: String
+)
