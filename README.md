@@ -2,12 +2,19 @@
 Proxy for rekrutteringsbistand stillingssøk.
 
 ## Start lokalt
-For å starte appen lokalt med mock av ElasticSearch må man kjøre main-metoden i Main.kt.<br>
+For å starte appen lokalt med mock av ElasticSearch må man kjøre main-metoden i LokalApplikasjon.<br>
 Beskyttelse av endepunkt er da slått av slik at det ikke er nødvendig å sette tokens på requestene.
 
-## Start docker lokalt for testing mot ElasticSearch i DEV
-docker build -t stillingssokproxy:latest .<br>
-docker run -p 8300:8300 --env NAIS_CLUSTER_NAME=dev-gcp --env ELASTIC_SEARCH_API={adresse} --env ES_USERNAME={brukernavn} --env ES_PASSORD={password} stillingssokproxy:latest<br>
+# Henvendelser
 
-Bytt ut {brukernavn}, {passord} og {adresse} med korrekte verdier for gcp-dev.
-Gyldig token må settes på requestene.
+## For Nav-ansatte
+* Dette Git-repositoriet eies av [Team inkludering i Produktområde arbeidsgiver](https://navno.sharepoint.com/sites/intranett-prosjekter-og-utvikling/SitePages/Produktomr%C3%A5de-arbeidsgiver.aspx).
+* Slack-kanaler:
+    * [#inkludering-utvikling](https://nav-it.slack.com/archives/CQZU35J6A)
+    * [#arbeidsgiver-utvikling](https://nav-it.slack.com/archives/CD4MES6BB)
+    * [#arbeidsgiver-general](https://nav-it.slack.com/archives/CCM649PDH)
+
+## For folk utenfor Nav
+* Opprett gjerne en issue i Github for alle typer spørsmål
+* IT-utviklerne i Github-teamet https://github.com/orgs/navikt/teams/arbeidsgiver
+* IT-avdelingen i [Arbeids- og velferdsdirektoratet](https://www.nav.no/no/NAV+og+samfunn/Kontakt+NAV/Relatert+informasjon/arbeids-og-velferdsdirektoratet-kontorinformasjon)
