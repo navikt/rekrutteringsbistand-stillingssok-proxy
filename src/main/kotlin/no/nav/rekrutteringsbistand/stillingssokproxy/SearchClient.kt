@@ -25,13 +25,13 @@ fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): So
     return try {
         val response = client.lowLevelClient.performRequest(request)
         val statusKode = response.statusLine.statusCode
-        val resultat = if (statusKode == 200) EntityUtils.toString(response.entity) else response.statusLine.reasonPhrase
+        val resultat = EntityUtils.toString(response.entity)
         SokeResultat(statusKode, resultat)
     } catch (e: Exception) {
         log("SearchClient").error("Feil ved kall mot ElasticSearch", e)
 
         when (e) {
-            is ResponseException -> SokeResultat(e.response.statusLine.statusCode, e.message ?: "")
+            is ResponseException -> SokeResultat(e.response.statusLine.statusCode, EntityUtils.toString(e.response.entity))
             is ClientProtocolException -> SokeResultat(500, "Proxy har HTTP-protokollfeil mot ElasticSearch")
             is IOException -> SokeResultat(504, "Problem med tilkobling til ElasticSearch")
             else -> throw InternalServerErrorResponse()
