@@ -26,7 +26,9 @@ fun startApp(
     issuerProperties: IssuerProperties,
     opprettSikkerhetsfilter: (javalin: Javalin, issuerProperties: IssuerProperties, tillateUrl: List<String>) -> Any
 ) {
-    val javalin = Javalin.create()
+    val javalin = Javalin.create {
+        it.defaultContentType = "application/json"
+    }
     val indeks = "stilling"
 
     val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
@@ -40,14 +42,12 @@ fun startApp(
             context
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
-                .header("Content-type", "application/json")
         }
         post("/_explain/:dokumentnummer") {context ->
             val elasticSearchSvar = explain(context.body(), context.queryParamMap(), indeks, context.pathParam("dokumentnummer"))
             context
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
-                .header("Content-type", "application/json")
         }
     }.start(port)
 }
