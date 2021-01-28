@@ -36,10 +36,18 @@ fun startApp(
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
         post("/_search") { context ->
-            val sokeResultat = sok(context.body(), context.queryParamMap(), indeks)
+            val elasticSearchSvar = sok(context.body(), context.queryParamMap(), indeks)
             context
-                .status(sokeResultat.statuskode)
-                .result(sokeResultat.resultat)
+                .status(elasticSearchSvar.statuskode)
+                .result(elasticSearchSvar.resultat)
+                .header("Content-type", "application/json")
+        }
+        get("/_explain/:dokumentnummer") {context ->
+            val dokumentnummer = context.pathParam("dokumentnummer")
+            val elasticSearchSvar = explain(indeks, dokumentnummer)
+            context
+                .status(elasticSearchSvar.statuskode)
+                .result(elasticSearchSvar.resultat)
                 .header("Content-type", "application/json")
         }
     }.start(port)

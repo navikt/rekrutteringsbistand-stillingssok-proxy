@@ -18,22 +18,31 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import java.io.IOException
 
-fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): SokeResultat {
-    val client = getRestHighLevelClient()
+fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): ElasticSearchSvar {
     val request = elasticSearchRequest("GET", "$indeks/_search", params, jsonbody)
+    return gjorRequest(request)
+}
+
+fun explain(indeks: String, dokumentnummer: String): ElasticSearchSvar {
+    val request = elasticSearchRequest("GET", "$indeks/_explain/$dokumentnummer", emptyMap(), "")
+    return gjorRequest(request)
+}
+
+private fun gjorRequest(request: Request): ElasticSearchSvar {
+    val client = getRestHighLevelClient()
 
     return try {
         val response = client.lowLevelClient.performRequest(request)
         val statusKode = response.statusLine.statusCode
         val resultat = EntityUtils.toString(response.entity)
-        SokeResultat(statusKode, resultat)
+        ElasticSearchSvar(statusKode, resultat)
     } catch (e: Exception) {
         log("SearchClient").error("Feil ved kall mot ElasticSearch", e)
 
         when (e) {
-            is ResponseException -> SokeResultat(e.response.statusLine.statusCode, EntityUtils.toString(e.response.entity))
-            is ClientProtocolException -> SokeResultat(500, "Proxy har HTTP-protokollfeil mot ElasticSearch")
-            is IOException -> SokeResultat(504, "Problem med tilkobling til ElasticSearch")
+            is ResponseException -> ElasticSearchSvar(e.response.statusLine.statusCode, EntityUtils.toString(e.response.entity))
+            is ClientProtocolException -> ElasticSearchSvar(500, "Proxy har HTTP-protokollfeil mot ElasticSearch")
+            is IOException -> ElasticSearchSvar(504, "Problem med tilkobling til ElasticSearch")
             else -> throw InternalServerErrorResponse()
         }
     }
@@ -74,7 +83,7 @@ fun getRestHighLevelClient(): RestHighLevelClient {
     )
 }
 
-data class SokeResultat(
+data class ElasticSearchSvar(
     val statuskode: Int,
     val resultat: String
 )
