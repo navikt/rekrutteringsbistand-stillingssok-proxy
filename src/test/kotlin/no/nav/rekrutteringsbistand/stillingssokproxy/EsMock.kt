@@ -13,7 +13,7 @@ object EsMock {
         ClientAndServer.startClientAndServer(9000)
             .`when`(
                 request()
-                    .withMethod("GET")
+                    .withMethod("POST")
                     .withPath(".*")
             )
             .respond(
