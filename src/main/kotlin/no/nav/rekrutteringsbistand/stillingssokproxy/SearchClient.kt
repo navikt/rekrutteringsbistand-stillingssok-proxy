@@ -18,17 +18,17 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import java.io.IOException
 
-fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): ElasticSearchSvar {
+fun søk(jsonbody: String, params: Map<String, List<String>>, indeks: String): ElasticSearchSvar {
     val request = elasticSearchRequest("GET", "$indeks/_search", params, jsonbody)
-    return gjorRequest(request)
+    return gjørRequest(request)
 }
 
 fun explain(jsonbody: String, params: Map<String, List<String>>, indeks: String, dokumentnummer: String): ElasticSearchSvar {
     val request = elasticSearchRequest("GET", "$indeks/_explain/$dokumentnummer", params, jsonbody)
-    return gjorRequest(request)
+    return gjørRequest(request)
 }
 
-private fun gjorRequest(request: Request): ElasticSearchSvar {
+private fun gjørRequest(request: Request): ElasticSearchSvar {
     val client = getRestHighLevelClient()
 
     return try {

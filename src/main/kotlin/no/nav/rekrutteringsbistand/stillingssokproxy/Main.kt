@@ -36,7 +36,7 @@ fun startApp(
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
         post("/_search") { context ->
-            val elasticSearchSvar = sok(context.body(), context.queryParamMap(), indeks)
+            val elasticSearchSvar = søk(context.body(), context.queryParamMap(), indeks)
             context
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
