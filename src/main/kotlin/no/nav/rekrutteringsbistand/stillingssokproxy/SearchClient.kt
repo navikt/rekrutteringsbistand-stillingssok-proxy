@@ -23,8 +23,8 @@ fun sok(jsonbody: String, params: Map<String, List<String>>, indeks: String): El
     return gjorRequest(request)
 }
 
-fun explain(indeks: String, dokumentnummer: String): ElasticSearchSvar {
-    val request = elasticSearchRequest("GET", "$indeks/_explain/$dokumentnummer", emptyMap(), "")
+fun explain(jsonbody: String, params: Map<String, List<String>>, indeks: String, dokumentnummer: String): ElasticSearchSvar {
+    val request = elasticSearchRequest("GET", "$indeks/_explain/$dokumentnummer", params, jsonbody)
     return gjorRequest(request)
 }
 

@@ -42,9 +42,8 @@ fun startApp(
                 .result(elasticSearchSvar.resultat)
                 .header("Content-type", "application/json")
         }
-        get("/_explain/:dokumentnummer") {context ->
-            val dokumentnummer = context.pathParam("dokumentnummer")
-            val elasticSearchSvar = explain(indeks, dokumentnummer)
+        post("/_explain/:dokumentnummer") {context ->
+            val elasticSearchSvar = explain(context.body(), context.queryParamMap(), indeks, context.pathParam("dokumentnummer"))
             context
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
