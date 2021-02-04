@@ -43,8 +43,19 @@ fun startApp(
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
         }
-        post("/_explain/:dokumentnummer") {context ->
-            val elasticSearchSvar = explain(context.body(), context.queryParamMap(), indeks, context.pathParam("dokumentnummer"))
+        post("/:indeks/_search") { context ->
+            val elasticSearchSvar = søk(context.body(), context.queryParamMap(), context.pathParam("indeks"))
+            context
+                .status(elasticSearchSvar.statuskode)
+                .result(elasticSearchSvar.resultat)
+        }
+        post("/:indeks/_explain/:dokumentnummer") { context ->
+            val elasticSearchSvar = explain(
+                context.body(),
+                context.queryParamMap(),
+                context.pathParam("indeks"),
+                context.pathParam("dokumentnummer")
+            )
             context
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
