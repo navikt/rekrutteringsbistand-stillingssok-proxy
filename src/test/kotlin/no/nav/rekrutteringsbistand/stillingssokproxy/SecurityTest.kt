@@ -16,7 +16,7 @@ import java.net.InetAddress
 class SecurityTest {
 
     val mockOAuth2Server = MockOAuth2Server()
-    val urlSomKreverAutentisering = "http://localhost:8300/_search"
+    val urlSomKreverAutentisering = "http://localhost:8300/stilling/_search"
     val isAliveUrl = "http://localhost:8300/internal/isAlive"
     val isReadyUrl = "http://localhost:8300/internal/isReady"
 

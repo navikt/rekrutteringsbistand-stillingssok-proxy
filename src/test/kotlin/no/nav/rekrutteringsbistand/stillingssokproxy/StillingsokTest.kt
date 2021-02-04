@@ -14,8 +14,8 @@ import java.net.InetAddress
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StillingsokTest {
 
-    val mockOAuth2Server = MockOAuth2Server()
-    val searchurl = "http://localhost:8300/_search"
+    private val mockOAuth2Server = MockOAuth2Server()
+    private val searchurl = "http://localhost:8300/stilling/_search"
 
     @BeforeAll
     fun init() {

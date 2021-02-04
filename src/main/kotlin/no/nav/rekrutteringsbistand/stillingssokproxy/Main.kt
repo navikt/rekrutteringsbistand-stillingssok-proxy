@@ -29,7 +29,6 @@ fun startApp(
     val javalin = Javalin.create {
         it.defaultContentType = "application/json"
     }
-    val indeks = "stilling"
 
     val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
     opprettSikkerhetsfilter(javalin, issuerProperties, tillatteUrl)
@@ -37,12 +36,6 @@ fun startApp(
     javalin.routes {
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
-        post("/_search") { context ->
-            val elasticSearchSvar = søk(context.body(), context.queryParamMap(), indeks)
-            context
-                .status(elasticSearchSvar.statuskode)
-                .result(elasticSearchSvar.resultat)
-        }
         post("/:indeks/_search") { context ->
             val elasticSearchSvar = søk(context.body(), context.queryParamMap(), context.pathParam("indeks"))
             context
