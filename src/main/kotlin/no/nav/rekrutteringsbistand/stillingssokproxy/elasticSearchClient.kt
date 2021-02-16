@@ -7,8 +7,8 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.elasticsearch.client.RestClient
 
 object ElasticSearch {
-    
-    val elasticSearchClient: RestClient by lazy {
+
+    val client: RestClient by lazy {
         val username = environment["ES_USERNAME"]
         val password = environment["ES_PASSWORD"]
         val url = environment["ELASTIC_SEARCH_API"]
