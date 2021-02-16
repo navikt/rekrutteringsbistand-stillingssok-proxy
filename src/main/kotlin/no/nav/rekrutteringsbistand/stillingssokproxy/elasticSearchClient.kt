@@ -3,16 +3,15 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.client.CredentialsProvider
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.elasticsearch.client.RestClient
 
 object ElasticSearch {
-    private val url = environment["ELASTIC_SEARCH_API"]
-    private val username = environment["ES_USERNAME"]
-    private val password = environment["ES_PASSWORD"]
-
-    val elasticSearchClient: RestClient = run {
+    
+    val elasticSearchClient: RestClient by lazy {
+        val username = environment["ES_USERNAME"]
+        val password = environment["ES_PASSWORD"]
+        val url = environment["ELASTIC_SEARCH_API"]
         RestClient
             .builder(HttpHost.create(url))
             .setRequestConfigCallback {
@@ -22,14 +21,15 @@ object ElasticSearch {
                     .setSocketTimeout(20000)
             }
             .setHttpClientConfigCallback {
-                it.setDefaultCredentialsProvider(credentialsProvider)
+                it.setDefaultCredentialsProvider(
+                    BasicCredentialsProvider().apply {
+                        setCredentials(
+                            AuthScope.ANY,
+                            UsernamePasswordCredentials(username, password)
+                        )
+                    }
+                )
             }.build()
     }
 
-    private val credentialsProvider: CredentialsProvider = BasicCredentialsProvider().apply {
-        setCredentials(
-            AuthScope.ANY,
-            UsernamePasswordCredentials(username, password)
-        )
-    }
 }
