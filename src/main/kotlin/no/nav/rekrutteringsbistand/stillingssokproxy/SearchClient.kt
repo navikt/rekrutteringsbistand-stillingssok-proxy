@@ -29,6 +29,7 @@ fun explain(jsonbody: String, params: Map<String, List<String>>, indeks: String,
 }
 
 private fun gjørRequest(request: Request): ElasticSearchSvar {
+    // TODO: Opprette kun én klient pr. pod
     val client = getRestHighLevelClient()
 
     return try {
@@ -36,6 +37,7 @@ private fun gjørRequest(request: Request): ElasticSearchSvar {
         val statusKode = response.statusLine.statusCode
         val resultat = EntityUtils.toString(response.entity)
         ElasticSearchSvar(statusKode, resultat)
+
     } catch (e: Exception) {
         log("SearchClient").error("Feil ved kall mot ElasticSearch", e)
 
@@ -45,6 +47,9 @@ private fun gjørRequest(request: Request): ElasticSearchSvar {
             is IOException -> ElasticSearchSvar(504, "Problem med tilkobling til ElasticSearch")
             else -> throw InternalServerErrorResponse()
         }
+
+    } finally {
+        client.close()
     }
 }
 
