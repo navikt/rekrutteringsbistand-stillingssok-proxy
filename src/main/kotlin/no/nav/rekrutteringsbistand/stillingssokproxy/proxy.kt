@@ -25,7 +25,7 @@ fun explain(
 }
 
 private fun gjørRequest(request: Request): ElasticSearchSvar = try {
-    val response = elasticSearchClient.performRequest(request)
+    val response = ElasticSearch.elasticSearchClient.performRequest(request)
     val statusKode = response.statusLine.statusCode
     val resultat = EntityUtils.toString(response.entity)
     ElasticSearchSvar(statusKode, resultat)
