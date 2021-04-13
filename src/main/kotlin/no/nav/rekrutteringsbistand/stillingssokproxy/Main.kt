@@ -54,6 +54,10 @@ fun startApp(
                 .result(elasticSearchSvar.resultat)
         }
     }.start(port)
+
+    javalin.exception(Exception::class.java) { e, ctx ->
+        log("Main").error("Feil i stillingproxy", e)
+    }
 }
 
 fun main() {
