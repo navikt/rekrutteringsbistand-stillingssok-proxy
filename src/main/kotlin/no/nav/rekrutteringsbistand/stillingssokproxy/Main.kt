@@ -16,7 +16,6 @@ fun log(name: String): Logger = LoggerFactory.getLogger(name)
 
 val environment = dotenv { ignoreIfMissing = true }
 val port = 8300
-val urlBaseInternal = "http://localhost:$port"
 val aliveUrl = "/internal/isAlive"
 val readyUrl = "/internal/isReady"
 
@@ -30,7 +29,7 @@ fun startApp(
         it.defaultContentType = "application/json"
     }
 
-    val tillatteUrl = listOf(urlBaseInternal + aliveUrl, urlBaseInternal + readyUrl)
+    val tillatteUrl = listOf(aliveUrl, readyUrl)
     opprettSikkerhetsfilter(javalin, issuerProperties, tillatteUrl)
 
     javalin.routes {

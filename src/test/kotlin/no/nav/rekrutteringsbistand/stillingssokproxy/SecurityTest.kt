@@ -85,6 +85,28 @@ class SecurityTest {
         assertThat(response.statusCode).isEqualTo(200)
     }
 
+    @Test
+    fun `Skal ikke kunne legge internal isAlive på URL som krever autentisering for å komme forbi sikkerhetsfilteret`() {
+        val fusketUrl = "$urlSomKreverAutentisering/internal/isAlive"
+
+        val fuelHttpClient = FuelManager()
+        val (_, response) = fuelHttpClient.get(fusketUrl)
+            .responseObject<String>()
+
+        assertThat(response.statusCode).isEqualTo(404)
+    }
+
+    @Test
+    fun `Skal ikke kunne legge på internal isAlive som param på URL som krever autentisering for å komme forbi sikkerhetsfilteret`() {
+        val fusketUrl = "$urlSomKreverAutentisering?internal/isAlive"
+
+        val fuelHttpClient = FuelManager()
+        val (_, response) = fuelHttpClient.get(fusketUrl)
+            .responseObject<String>()
+
+        assertThat(response.statusCode).isEqualTo(403)
+    }
+
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
         DefaultOAuth2TokenCallback(
             issuerId = "isso-idtoken",
