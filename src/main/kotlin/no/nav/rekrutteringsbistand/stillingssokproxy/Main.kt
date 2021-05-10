@@ -53,7 +53,7 @@ fun startApp(
                 .result(elasticSearchSvar.resultat)
         }
         get("/:indeks/_doc/:dokumentid") { context ->
-            val elasticSearchSvar = hentDokument(context.pathParam("indeks"), context.pathParam("dokumentid"))
+            val elasticSearchSvar = hentDokument(context.pathParam("dokumentid"), context.pathParam("indeks"))
             context
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
