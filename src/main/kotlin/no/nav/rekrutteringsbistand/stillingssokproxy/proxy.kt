@@ -14,6 +14,8 @@ fun søk(jsonbody: String, params: Map<String, List<String>>, indeks: String): E
     return gjørRequest(request)
 }
 
+fun hentDokument(dokumentnummer: String, indeks: String): ElasticSearchSvar = gjørRequest(Request("GET", "$indeks/_doc/$dokumentnummer"))
+
 fun explain(
     jsonbody: String,
     params: Map<String, List<String>>,

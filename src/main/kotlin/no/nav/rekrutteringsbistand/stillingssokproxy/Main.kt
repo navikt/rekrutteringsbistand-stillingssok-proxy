@@ -52,6 +52,12 @@ fun startApp(
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
         }
+        get("/:indeks/_doc/:dokumentid") { context ->
+            val elasticSearchSvar = hentDokument(context.pathParam("indeks"), context.pathParam("dokumentid"))
+            context
+                .status(elasticSearchSvar.statuskode)
+                .result(elasticSearchSvar.resultat)
+        }
     }.start(port)
 
     javalin.exception(Exception::class.java) { e, ctx ->
