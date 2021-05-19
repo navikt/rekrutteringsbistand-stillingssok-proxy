@@ -16,6 +16,7 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, ti
 
         if (!endepunktTillattUtenAutentisering) {
             val cookieName = issuerProperties.cookieName
+            log("sikkerhetsfilter").info("Skal sjekke cookie med navn $cookieName")
             val tokenValidationHandler =
                 JwtTokenValidationHandler(MultiIssuerConfiguration(mapOf(Pair(cookieName, issuerProperties))))
             val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
