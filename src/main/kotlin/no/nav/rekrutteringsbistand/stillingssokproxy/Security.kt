@@ -21,6 +21,7 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, ti
             val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
             val claims = tokenValidationContext.getClaims(cookieName)
 
+            log("sikkerhetsfilter").info("Token inneholder claims: ${claims.allClaims.map { it.key }.joinToString(",")}")
             if (!tokenErGyldig(claims)) {
                 throw ForbiddenResponse()
             }
