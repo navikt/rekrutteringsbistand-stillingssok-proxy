@@ -21,8 +21,6 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, ti
                 JwtTokenValidationHandler(MultiIssuerConfiguration(mapOf(Pair(cookieName, issuerProperties))))
             val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
             val claims = tokenValidationContext.getClaims(cookieName)
-
-            log("sikkerhetsfilter").info("Token inneholder claims: ${claims.allClaims.map { it.key }.joinToString(",")}")
             if (!tokenErGyldig(claims)) {
                 throw ForbiddenResponse()
             }
@@ -32,6 +30,11 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, ti
 
 fun tokenErGyldig(claims: JwtTokenClaims?): Boolean {
     if (claims == null || claims["NAVident"] == null) return false
+
+    // TODO: Fjerne etter innført støtte for systemtokens
+    if (claims != null) {
+        log("sikkerhetsfilter").info("Claims: ${claims.allClaims.map { it.key }.joinToString(",")}")
+    }
     return claims["NAVident"].toString().isNotEmpty()
 }
 
