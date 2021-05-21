@@ -26,3 +26,9 @@ spec:
   env:
     - name: ELASTIC_SEARCH_API
       value: {{elastic-search-api}}
+  accessPolicy:
+    inbound:
+      rules:
+        - application: rekrutteringsbistand-statistikk-api
+          namespace: arbeidsgiver
+          cluster: {{statistikk-api-cluster}}
