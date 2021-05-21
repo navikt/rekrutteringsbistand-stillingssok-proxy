@@ -2,5 +2,6 @@
   "ingress": [
     "https://rekrutteringsbistand-stillingssok-proxy.dev.intern.nav.no"
   ],
-  "elastic-search-api": "https://elastic-arbeidsgiver-rekrutteringsbistand-stilling-nav-dev.aivencloud.com:26482"
+  "elastic-search-api": "https://elastic-arbeidsgiver-rekrutteringsbistand-stilling-nav-dev.aivencloud.com:26482",
+  "statistikk-api-cluster": "dev-fss"
 }

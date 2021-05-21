@@ -19,6 +19,12 @@ spec:
   azure:
     application:
       enabled: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: rekrutteringsbistand-statistikk-api
+          namespace: arbeidsgiver
+          cluster: {{statistikk-api-cluster}}
   elastic:
     instance: rekrutteringsbistand-stilling
   envFrom:
