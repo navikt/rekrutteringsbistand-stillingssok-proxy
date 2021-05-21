@@ -6,7 +6,7 @@ import java.net.URL
 
 fun main() {
     EsMock.startEsMock()
-    startApp(LokalApplikasjon.issuerProperties, LokalApplikasjon::tomtSikkerhetsfilter)
+    startApp(listOf(LokalApplikasjon.issuerProperties), LokalApplikasjon::tomtSikkerhetsfilter)
 }
 
 object LokalApplikasjon {
@@ -17,12 +17,12 @@ object LokalApplikasjon {
         EsMock.startEsMock()
 
         if (!javalinServerStartet) {
-            startApp(issuerProperties, ::lagSikkerhetsfilter)
+            startApp(listOf(issuerProperties), ::lagSikkerhetsfilter)
             javalinServerStartet = true
         }
     }
 
-    fun tomtSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, tillateUrl: List<String>) {}
+    fun tomtSikkerhetsfilter(javalin: Javalin, issuerProperties: List<IssuerProperties>, tillateUrl: List<String>) {}
 
     val issuerProperties = IssuerProperties(
         URL("http://localhost:18300/isso-idtoken/.well-known/openid-configuration"),
