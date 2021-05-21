@@ -4,7 +4,7 @@ import no.nav.security.token.support.core.configuration.IssuerProperties
 import java.net.URL
 
 private val issuer_isso = "isso-idtoken"
-private val issuer_azuread = "azuread"
+private val issuer_azuread = "https://login.microsoftonline.com/966ac572-f5b7-4bbe-aa88-c76419c0f851/v2.0"
 
 fun hentIssuerProperties() =
     when(environment["NAIS_CLUSTER_NAME"]) {
@@ -15,8 +15,8 @@ fun hentIssuerProperties() =
                 issuer_isso
             ),
             IssuerProperties(
-                URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration"),
-                listOf("e1399c11-90f3-4813-9431-eab5947a6168"),
+                URL(System.getenv("AZURE_APP_WELL_KNOWN_URL")),
+                listOf(System.getenv("AZURE_APP_CLIENT_ID")),
                 issuer_azuread
             )
         )

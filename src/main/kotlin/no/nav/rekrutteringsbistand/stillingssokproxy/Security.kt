@@ -21,6 +21,7 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: List<IssuerPropertie
                     MultiIssuerConfiguration(issuerProperties.map { it.cookieName to it }.toMap())
                 )
             val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
+
             val claims = tokenValidationContext.anyValidClaims.orElseThrow { ForbiddenResponse() }
 
             if (!tokenErGyldig(claims)) {
