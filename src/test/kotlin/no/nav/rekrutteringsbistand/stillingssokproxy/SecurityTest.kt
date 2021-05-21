@@ -3,6 +3,7 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.jackson.responseObject
+import com.nimbusds.jose.util.Base64
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.assertj.core.api.Assertions.assertThat
@@ -39,6 +40,30 @@ class SecurityTest {
             .bearer(token.serialize())
             .responseObject<String>()
         assertThat(response.statusCode).isEqualTo(200)
+    }
+
+    @Test
+    fun `avvise none uten signatur`() {
+        val token = hentToken(mockOAuth2Server)
+        val tokenParts = token.serialize().split('.')
+        val tokenStr = listOf(Base64.encode("{ \"alg\":\"none\" }"),tokenParts[1]).joinToString(".")
+        val fuelHttpClient = FuelManager()
+        val (_, response) = fuelHttpClient.post(urlSomKreverAutentisering).authentication()
+            .bearer(tokenStr)
+            .responseObject<String>()
+        assertThat(response.statusCode).isEqualTo(403)
+    }
+
+    @Test
+    fun `avvise none med signatur`() {
+        val token = hentToken(mockOAuth2Server)
+        val tokenParts = token.serialize().split('.')
+        val tokenStr = listOf(Base64.encode("{ \"alg\":\"none\" }"),tokenParts[1],tokenParts[1]).joinToString(".")
+        val fuelHttpClient = FuelManager()
+        val (_, response) = fuelHttpClient.post(urlSomKreverAutentisering).authentication()
+            .bearer(tokenStr)
+            .responseObject<String>()
+        assertThat(response.statusCode).isEqualTo(403)
     }
 
     @Test

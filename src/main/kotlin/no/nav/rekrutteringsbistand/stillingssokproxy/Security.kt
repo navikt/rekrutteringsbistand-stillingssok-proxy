@@ -29,6 +29,7 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, ti
 }
 
 fun tokenErGyldig(claims: JwtTokenClaims?): Boolean {
+    log("tokenErGyldig()").info("Claims: ${claims?.allClaims?.keys?.joinToString()}")
     if (claims == null || claims["NAVident"] == null) return false
     return claims["NAVident"].toString().isNotEmpty()
 }
