@@ -22,6 +22,9 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: List<IssuerPropertie
                 )
             val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
 
+            val gyldigToken = tokenValidationContext.hasValidToken()
+            log("sikkerhetsfilter").info("Har gyldg token: $gyldigToken")
+
             val claims = tokenValidationContext.anyValidClaims.orElseThrow { ForbiddenResponse() }
 
             if (!tokenErGyldig(claims)) {
