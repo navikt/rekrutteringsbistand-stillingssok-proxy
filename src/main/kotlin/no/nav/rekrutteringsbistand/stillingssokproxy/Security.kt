@@ -30,9 +30,9 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: List<IssuerPropertie
 }
 
 fun tokenErGyldig(claims: JwtTokenClaims?): Boolean {
-    log("tokenErGyldig()").info("Claims: ${claims?.allClaims?.keys?.joinToString()}")
-    if (claims == null || claims["NAVident"] == null) return false
-    return claims["NAVident"].toString().isNotEmpty()
+    val erVeileder = claims?.get("NAVident") != null && claims["NAVident"].toString().isNotEmpty()
+    val erSystem = claims?.get("sub") == claims?.get("oid")
+    return erVeileder || erSystem
 }
 
 private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
