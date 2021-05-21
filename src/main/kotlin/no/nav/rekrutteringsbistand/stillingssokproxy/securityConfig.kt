@@ -16,7 +16,7 @@ fun hentIssuerProperties() =
             ),
             IssuerProperties(
                 URL("https://login.microsoftonline.com/NAVQ.onmicrosoft.com/.well-known/openid-configuration"),
-                listOf("38e07d31-659d-4595-939a-f18dce3446c5", "ce2dc2d7-403f-432f-8fab-2d589de424ef"),
+                listOf("e1399c11-90f3-4813-9431-eab5947a6168"),
                 issuer_azuread
             )
         )
