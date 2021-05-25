@@ -1,7 +1,7 @@
 # rekrutteringsbistand-stillingssok-proxy
 Proxy for rekrutteringsbistand stillingssøk.
 
-## Start lokalt
+## Start app lokalt
 For å starte appen lokalt med mock av ElasticSearch må man kjøre main-metoden i LokalApplikasjon.<br>
 Beskyttelse av endepunkt er da slått av slik at det ikke er nødvendig å sette tokens på requestene.
 
