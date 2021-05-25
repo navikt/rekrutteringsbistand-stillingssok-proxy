@@ -9,18 +9,19 @@ import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 
-fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, tillateUrl: List<String>) {
+fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: List<IssuerProperties>, tillateUrl: List<String>) {
     javalin.before { context ->
         val url: String = context.req.requestURL.toString()
         val endepunktTillattUtenAutentisering = tillateUrl.any { url.contains(it) }
 
         if (!endepunktTillattUtenAutentisering) {
-            val cookieName = issuerProperties.cookieName
-            val tokenValidationHandler =
-                JwtTokenValidationHandler(MultiIssuerConfiguration(mapOf(Pair(cookieName, issuerProperties))))
-            val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
-            val claims = tokenValidationContext.getClaims(cookieName)
 
+            val tokenValidationHandler =
+                JwtTokenValidationHandler(
+                    MultiIssuerConfiguration(issuerProperties.map { it.cookieName to it }.toMap())
+                )
+            val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
+            val claims = tokenValidationContext.anyValidClaims.orElseThrow { ForbiddenResponse() }
             if (!tokenErGyldig(claims)) {
                 throw ForbiddenResponse()
             }
@@ -29,9 +30,9 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: IssuerProperties, ti
 }
 
 fun tokenErGyldig(claims: JwtTokenClaims?): Boolean {
-    log("tokenErGyldig()").info("Claims: ${claims?.allClaims?.keys?.joinToString()}")
-    if (claims == null || claims["NAVident"] == null) return false
-    return claims["NAVident"].toString().isNotEmpty()
+    val erVeileder = claims?.get("NAVident") != null && claims["NAVident"].toString().isNotEmpty()
+    val erSystem = claims?.get("sub") == claims?.get("oid")
+    return erVeileder || erSystem
 }
 
 private fun getHttpRequest(context: Context): HttpRequest = object : HttpRequest {
