@@ -3,5 +3,5 @@
     "https://rekrutteringsbistand-stillingssok-proxy.intern.nav.no"
   ],
   "elastic-search-api": "https://elastic-arbeidsgiver-rekrutteringsbistand-stilling-nav-prod.aivencloud.com:26482",
-  "statistikk-api-cluster": "prod-fss"
+  "fss-cluster": "prod-fss"
 }

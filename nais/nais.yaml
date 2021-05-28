@@ -24,7 +24,10 @@ spec:
       rules:
         - application: rekrutteringsbistand-statistikk-api
           namespace: arbeidsgiver
-          cluster: {{statistikk-api-cluster}}
+          cluster: {{fss-cluster}}
+        - application: foresporsel-om-deling-av-cv-api
+          namespace: arbeidsgiver-inkludering
+          cluster: {{fss-cluster}}
   elastic:
     instance: rekrutteringsbistand-stilling
   envFrom:
