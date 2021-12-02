@@ -23,8 +23,8 @@ fun startApp(
     issuerProperties: List<IssuerProperties>,
     opprettSikkerhetsfilter: (javalin: Javalin, issuerProperties: List<IssuerProperties>, tillateUrl: List<String>) -> Any
 ) {
-    val javalin = Javalin.create {
-        it.defaultContentType = "application/json"
+    val javalin = Javalin.create { config ->
+        config.defaultContentType = "application/json"
     }
 
     val tillatteUrl = listOf(aliveUrl, readyUrl)
@@ -33,13 +33,13 @@ fun startApp(
     javalin.routes {
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
-        post("/:indeks/_search") { context ->
+        post("/{indeks}/_search") { context ->
             val elasticSearchSvar = søk(context.body(), context.queryParamMap(), context.pathParam("indeks"))
             context
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
         }
-        post("/:indeks/_explain/:dokumentnummer") { context ->
+        post("/{indeks}/_explain/{dokumentnummer}") { context ->
             val elasticSearchSvar = explain(
                 context.body(),
                 context.queryParamMap(),
@@ -50,7 +50,7 @@ fun startApp(
                 .status(elasticSearchSvar.statuskode)
                 .result(elasticSearchSvar.resultat)
         }
-        get("/:indeks/_doc/:dokumentid") { context ->
+        get("/{indeks}/_doc/{dokumentid}") { context ->
             val elasticSearchSvar = hentDokument(context.pathParam("dokumentid"), context.pathParam("indeks"))
             context
                 .status(elasticSearchSvar.statuskode)
@@ -58,7 +58,7 @@ fun startApp(
         }
     }.start(port)
 
-    javalin.exception(Exception::class.java) { e, ctx ->
+    javalin.exception(Exception::class.java) { e, _ ->
         log("Main").error("Feil i stillingproxy", e)
     }
 }
