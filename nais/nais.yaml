@@ -28,6 +28,8 @@ spec:
         - application: foresporsel-om-deling-av-cv-api
           namespace: arbeidsgiver-inkludering
           cluster: {{fss-cluster}}
+        - application: rekrutteringsbistand-stillingssok
+          namespace: toi
   elastic:
     instance: rekrutteringsbistand-stilling
   envFrom:
