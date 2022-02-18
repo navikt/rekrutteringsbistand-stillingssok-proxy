@@ -20,7 +20,12 @@ fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: List<IssuerPropertie
                 JwtTokenValidationHandler(
                     MultiIssuerConfiguration(issuerProperties.map { it.cookieName to it }.toMap())
                 )
-            val tokenValidationContext = tokenValidationHandler.getValidatedTokens(getHttpRequest(context))
+
+            val httpRequest = getHttpRequest(context)
+            val bearerToken = httpRequest.getHeader("Authorization")
+            log("sikkerhetsfilter").info("BearerToken: $bearerToken")
+
+            val tokenValidationContext = tokenValidationHandler.getValidatedTokens(httpRequest)
             val claims = tokenValidationContext.anyValidClaims.orElseThrow { ForbiddenResponse() }
             if (!tokenErGyldig(claims)) {
                 throw ForbiddenResponse()
