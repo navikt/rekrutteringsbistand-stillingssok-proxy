@@ -5,6 +5,28 @@ Proxy for rekrutteringsbistand stillingssøk.
 For å starte appen lokalt med mock av ElasticSearch må man kjøre main-metoden i LokalApplikasjon.<br>
 Beskyttelse av endepunkt er da slått av slik at det ikke er nødvendig å sette tokens på requestene.
 
+## Spørre manuelt mot Elasticsearch
+Gjøres med å sende en HTTP GET request, som kan gjøres på mange forskjellige måter. I dette eksemplet vises syntaksen til IntelliJ sitt innebygde verktøy "HTTP Client":
+```
+GET https://elastic-arbeidsgiver-rekrutteringsbistand-stilling-nav-prod.aivencloud.com:26482/stilling/_search
+Authorization: Basic arbeidsgiver-r <passord>
+Content-Type: application/json
+
+{
+  "query": {
+    "query_string": {
+      "query": "<søkeord, kan være hva som helst, f.eks. stillingens annonsenummer>"
+    }
+  }
+}
+```
+
+URL, brukernavn og passord hentes fra en Kubernetes-pod slik:
+1. I Naisdevice-appen, koble deg til `aiven-prod`
+2. Finn navnet på en kjørende Kubernetes-pod ved å kjøre f.eks. `kubectl get pods -n arbeidsgiver | grep rekrutteringsbistand-stillingssok-proxy`
+3. Logg inn i pod-en ved å kjøre `kubectl exec -it <podnavn> -n arbeidsgiver -- /bin/sh`
+4. Inne i pod-en, vis miljøvariabler med URL, brukernavn og passord ved å kjøre f.eks. `env | grep -i elastic` 
+
 
 # Henvendelser
 
