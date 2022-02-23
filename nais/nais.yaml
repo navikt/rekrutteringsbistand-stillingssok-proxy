@@ -33,6 +33,8 @@ spec:
           cluster: {{fss-cluster}}
         - application: rekrutteringsbistand-stillingssok
           namespace: toi
+        - application: rekrutteringsbistand-container
+          namespace: toi
   elastic:
     instance: rekrutteringsbistand-stilling
   envFrom:
