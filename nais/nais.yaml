@@ -35,10 +35,6 @@ spec:
           namespace: toi
         - application: rekrutteringsbistand-container
           namespace: toi
-  elastic:
+  openSearch:
+    access: read
     instance: rekrutteringsbistand-stilling
-  envFrom:
-    - secret: rekrutteringsbistand-stillingssok-proxy-es-credentials
-  env:
-    - name: ELASTIC_SEARCH_API
-      value: {{elastic-search-api}}
