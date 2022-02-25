@@ -9,9 +9,9 @@ import org.elasticsearch.client.RestClient
 object ElasticSearch {
 
     val client: RestClient by lazy {
-        val username = environment["ES_USERNAME"]
-        val password = environment["ES_PASSWORD"]
-        val url = environment["ELASTIC_SEARCH_API"]
+        val username = environment["OPEN_SEARCH_USERNAME"]
+        val password = environment["OPEN_SEARCH_PASSWORD"]
+        val url = environment["OPEN_SEARCH_URI"]
         RestClient
             .builder(HttpHost.create(url))
             .setRequestConfigCallback {
