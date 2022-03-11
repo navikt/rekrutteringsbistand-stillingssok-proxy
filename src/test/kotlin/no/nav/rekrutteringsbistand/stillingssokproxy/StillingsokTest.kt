@@ -39,15 +39,16 @@ class StillingsokTest {
         assertThat(result.get()).isEqualTo(EsMock.jsonResultat)
     }
 
-    private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
+    private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken(
+        azureAdIssuer, clientIdOfSomeApp,
         DefaultOAuth2TokenCallback(
-            issuerId = "isso-idtoken",
+            issuerId = azureAdIssuer,
             claims = mapOf(
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
                 ),
-            audience = listOf("audience")
+            audience = listOf(ownClientId)
         )
     )
 }
