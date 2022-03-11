@@ -7,7 +7,6 @@ import io.javalin.apibuilder.ApiBuilder.post
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.net.URL
 
 val Any.log: Logger
     get() = LoggerFactory.getLogger(this::class.java)
