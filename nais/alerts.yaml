@@ -14,10 +14,10 @@ spec:
       expr: sum(up{app="rekrutteringsbistand-stillingssok-proxy", job="kubernetes-pods"}) == 0
       for: 1s
       description: "rekrutteringsbistand-stillingssok-proxy er nede"
-      action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/goto/0c440cf82d8cbcc397e2cfa2fff91833"
+      action: "https://logs.adeo.no/goto/8004078c866a597a534a22dcd68286d2"
 
     - alert: Det har skjedd en feil i rekrutteringsbistand-stillingssok-proxy
       expr: sum(increase(logd_messages_total{log_app="rekrutteringsbistand-stillingssok-proxy",log_level="Error"}[10m])) > 0
       for: 10s
       description: "rekrutteringsbistand-stillingssok-proxy har logget en feil"
-      action: "Sjekk logs.adeo.no for logger: https://logs.adeo.no/goto/6844ad59c0893cff433de18a020304ef"
+      action: "https://logs.adeo.no/goto/65247d47faf9d72de685a7f6aec8b6b2"
