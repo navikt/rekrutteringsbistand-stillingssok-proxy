@@ -11,9 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         with:
-          java-version: '15.x'
+          java-version: '17'
+          distribution: 'temurin'
       - uses: actions/cache@v2
         with:
           path: |
@@ -23,18 +24,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Run tests
-        run: ./gradlew test --info
+        run: ./gradlew check --info
 
   deploy-to-dev:
     name: Deploy to dev
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/bytt-til-opensearch'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/oppgrader-java-og-kotlin-versjon'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         with:
-          java-version: '15.x'
+          java-version: '17'
+          distribution: 'temurin'
       - uses: actions/cache@v2
         with:
           path: |
