@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.4.21"
-    id("com.github.johnrengelman.shadow") version "6.1.0"
+    kotlin("jvm") version embeddedKotlinVersion // Kotlinversjon styres av gradlew, se https://blog.nishtahir.com/how-to-properly-update-the-gradle-wrapper/
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     application
 }
 
@@ -8,7 +8,11 @@ group = "org.example"
 version = "1.0-SNAPSHOT"
 
 application {
-    mainClassName = "no.nav.rekrutteringsbistand.stillingssokproxy.MainKt"
+    mainClass.set("no.nav.rekrutteringsbistand.stillingssokproxy.MainKt")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(16))
 }
 
 tasks.withType<Test> {
