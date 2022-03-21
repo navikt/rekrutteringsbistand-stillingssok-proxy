@@ -76,7 +76,7 @@ class SecurityTest {
 
     @Test
     fun `Kall med ugyldig token mot beskyttet endepunkt skal returnere 403`() {
-        val ugyldigToken = hentUgyldigToken(mockOAuth2Server)
+        val ugyldigToken = hentTokenScopetTilFeilApp(mockOAuth2Server)
         val fuelHttpClient = FuelManager()
         val (_, response) = fuelHttpClient.post(urlSomKreverAutentisering).authentication()
             .bearer(ugyldigToken.serialize())
@@ -132,38 +132,40 @@ class SecurityTest {
         assertThat(response.statusCode).isEqualTo(403)
     }
 
-    private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
+    private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken(azureAdIssuer, "someclientid",
         DefaultOAuth2TokenCallback(
-            issuerId = "isso-idtoken",
+            issuerId = azureAdIssuer,
             claims = mapOf(
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
                 ),
-            audience = listOf("audience")
+            audience = listOf(ownClientId)
         )
     )
 
-    private fun hentUgyldigToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("feilissuer", "someclientid",
+    private fun hentTokenScopetTilFeilApp(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken(
+        azureAdIssuer, clientIdOfSomeApp,
         DefaultOAuth2TokenCallback(
-            issuerId = "feilissuer",
+            issuerId = azureAdIssuer,
             claims = mapOf(
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
                 ),
-            audience = listOf("audience")
+            audience = listOf(clientIdOfSomeApp)
         )
     )
 
-    private fun hentTokenUtenNavIdentClaim(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken("isso-idtoken", "someclientid",
+    private fun hentTokenUtenNavIdentClaim(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken(
+        azureAdIssuer, clientIdOfSomeApp,
         DefaultOAuth2TokenCallback(
-            issuerId = "isso-idtoken",
+            issuerId = azureAdIssuer,
             claims = mapOf(
                 Pair("name", "navn"),
                 Pair("unique_name", "unique_name"),
                 ),
-            audience = listOf("audience")
+            audience = listOf(ownClientId)
         )
     )
 }
