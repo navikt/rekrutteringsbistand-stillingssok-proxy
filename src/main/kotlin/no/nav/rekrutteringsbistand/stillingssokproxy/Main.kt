@@ -58,7 +58,7 @@ fun startApp(
     }.start(port)
 
     javalin.exception(Exception::class.java) { e, _ ->
-        log("Main").error("Feil i stillingproxy", e)
+        log("Main").error(e.toString(), e)
     }
 }
 
@@ -66,7 +66,7 @@ fun main() {
     try {
         startApp(hentIssuerProperties(), ::lagSikkerhetsfilter)
     } catch (e: Exception) {
-        log("main()").error("Noe galt skjedde", e)
+        log("main()").error(e.toString(), e)
         throw e
     }
 }
