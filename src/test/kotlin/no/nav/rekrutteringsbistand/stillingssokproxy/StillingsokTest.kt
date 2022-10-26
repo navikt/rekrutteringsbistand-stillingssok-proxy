@@ -20,7 +20,7 @@ class StillingsokTest {
     @BeforeAll
     fun init() {
         LokalApplikasjon.startAppForTest()
-        EsMock.startEsMock()
+        OsMock.startOsMock()
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
     }
 
@@ -30,13 +30,13 @@ class StillingsokTest {
     }
 
     @Test
-    fun `Søkekall til appen skal videresende søk til ES og returnere svar fra ES uten endringer`() {
+    fun `Søkekall til appen skal videresende søk til OS og returnere svar fra OS uten endringer`() {
         val token = hentToken(mockOAuth2Server)
         val (_, response, result) = Fuel.post(searchurl).authentication()
             .bearer(token.serialize())
             .responseString()
         assertThat(response.statusCode).isEqualTo(200)
-        assertThat(result.get()).isEqualTo(EsMock.jsonResultat)
+        assertThat(result.get()).isEqualTo(OsMock.jsonResultat)
     }
 
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken(

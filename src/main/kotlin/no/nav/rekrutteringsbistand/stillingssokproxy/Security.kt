@@ -11,7 +11,7 @@ import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 
 fun lagSikkerhetsfilter(javalin: Javalin, issuerProperties: List<IssuerProperties>, tillateUrl: List<String>) {
     javalin.before { context ->
-        val url: String = context.req.requestURL.toString()
+        val url: String = context.req().requestURL.toString()
         val endepunktTillattUtenAutentisering = tillateUrl.any { url.contains(it) }
 
         if (!endepunktTillattUtenAutentisering) {
