@@ -9,7 +9,7 @@ const val ownClientId = "audience"
 const val clientIdOfSomeApp = "client-id"
 
 fun main() {
-    EsMock.startEsMock()
+    OsMock.startOsMock()
     startApp(listOf(LokalApplikasjon.issuerProperties), LokalApplikasjon::tomtSikkerhetsfilter)
 }
 
@@ -17,7 +17,7 @@ object LokalApplikasjon {
     private var javalinServerStartet = false
 
     fun startAppForTest() {
-        EsMock.startEsMock()
+        OsMock.startOsMock()
 
         if (!javalinServerStartet) {
             startApp(listOf(issuerProperties), ::lagSikkerhetsfilter)

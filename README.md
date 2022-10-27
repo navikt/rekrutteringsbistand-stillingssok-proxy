@@ -2,10 +2,10 @@
 Proxy for rekrutteringsbistand stillingssøk.
 
 ## Start app lokalt
-For å starte appen lokalt med mock av ElasticSearch må man kjøre main-metoden i LokalApplikasjon.<br>
+For å starte appen lokalt med mock av OpenSearch må man kjøre main-metoden i LokalApplikasjon.<br>
 Beskyttelse av endepunkt er da slått av slik at det ikke er nødvendig å sette tokens på requestene.
 
-## Spørre manuelt mot Elasticsearch
+## Spørre manuelt mot Opensearch
 Gjøres med å sende en HTTP GET request, som kan gjøres på mange forskjellige måter. I dette eksemplet vises syntaksen til IntelliJ sitt innebygde verktøy "HTTP Client":
 ```
 GET https://elastic-arbeidsgiver-rekrutteringsbistand-stilling-nav-prod.aivencloud.com:26482/stilling/_search

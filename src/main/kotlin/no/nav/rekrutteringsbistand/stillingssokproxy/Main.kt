@@ -23,7 +23,7 @@ fun startApp(
     opprettSikkerhetsfilter: (javalin: Javalin, issuerProperties: List<IssuerProperties>, tillateUrl: List<String>) -> Any
 ) {
     val javalin = Javalin.create { config ->
-        config.defaultContentType = "application/json"
+        config.http.defaultContentType = "application/json"
     }
 
     val tillatteUrl = listOf(aliveUrl, readyUrl)
@@ -33,27 +33,27 @@ fun startApp(
         get(aliveUrl) { it.status(200) }
         get(readyUrl) { it.status(200) }
         post("/{indeks}/_search") { context ->
-            val elasticSearchSvar = søk(context.body(), context.queryParamMap(), context.pathParam("indeks"))
+            val openSearchSvar = søk(context.body(), context.queryParamMap(), context.pathParam("indeks"))
             context
-                .status(elasticSearchSvar.statuskode)
-                .result(elasticSearchSvar.resultat)
+                .status(openSearchSvar.statuskode)
+                .result(openSearchSvar.resultat)
         }
         post("/{indeks}/_explain/{dokumentnummer}") { context ->
-            val elasticSearchSvar = explain(
+            val openSearchSvar = explain(
                 context.body(),
                 context.queryParamMap(),
                 context.pathParam("indeks"),
                 context.pathParam("dokumentnummer")
             )
             context
-                .status(elasticSearchSvar.statuskode)
-                .result(elasticSearchSvar.resultat)
+                .status(openSearchSvar.statuskode)
+                .result(openSearchSvar.resultat)
         }
         get("/{indeks}/_doc/{dokumentid}") { context ->
-            val elasticSearchSvar = hentDokument(context.pathParam("dokumentid"), context.pathParam("indeks"))
+            val openSearchSvar = hentDokument(context.pathParam("dokumentid"), context.pathParam("indeks"))
             context
-                .status(elasticSearchSvar.statuskode)
-                .result(elasticSearchSvar.resultat)
+                .status(openSearchSvar.statuskode)
+                .result(openSearchSvar.resultat)
         }
     }.start(port)
 

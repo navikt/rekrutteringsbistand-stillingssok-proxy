@@ -3,12 +3,13 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
+import org.mockserver.model.MediaType
 
-object EsMock {
+object OsMock {
 
     var serverHasStarted = false
 
-    fun startEsMock() {
+    fun startOsMock() {
         if (serverHasStarted) return
         ClientAndServer.startClientAndServer(9000)
             .`when`(
@@ -19,6 +20,7 @@ object EsMock {
             .respond(
                 response()
                     .withStatusCode(200)
+                    .withContentType(MediaType.APPLICATION_JSON)
                     .withBody(jsonResultat)
             )
         serverHasStarted = true

@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version embeddedKotlinVersion // Kotlinversjon styres av gradlew, se https://blog.nishtahir.com/how-to-properly-update-the-gradle-wrapper/
+    kotlin("jvm") version "1.7.20"
     id("com.github.johnrengelman.shadow") version "7.1.2"
     application
 }
@@ -12,7 +12,7 @@ application {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(16))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 tasks.withType<Test> {
@@ -25,18 +25,18 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("ch.qos.logback:logback-classic:1.2.7")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")
-    implementation("io.javalin:javalin:4.1.1")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.0")
-    implementation("no.nav.security:token-validation-core:1.3.9")
-    implementation("org.elasticsearch.client:elasticsearch-rest-high-level-client:7.15.0")
+    implementation("ch.qos.logback:logback-classic:1.4.4")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.3.1")
+    implementation("io.javalin:javalin:5.1.1")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.2")
+    implementation("no.nav.security:token-validation-core:2.1.6")
+    implementation("org.opensearch.client:opensearch-rest-high-level-client:2.3.0")
 
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
     testImplementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
-    testImplementation("no.nav.security:mock-oauth2-server:0.3.6")
-    testImplementation("org.assertj:assertj-core:3.21.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testImplementation("org.mock-server:mockserver-netty:5.11.2")
+    testImplementation("no.nav.security:mock-oauth2-server:0.5.5")
+    testImplementation("org.assertj:assertj-core:3.23.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
+    testImplementation("org.mock-server:mockserver-netty:5.14.0")
 }

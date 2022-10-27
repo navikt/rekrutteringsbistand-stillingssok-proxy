@@ -4,9 +4,9 @@ import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.impl.client.BasicCredentialsProvider
-import org.elasticsearch.client.RestClient
+import org.opensearch.client.RestClient
 
-object ElasticSearch {
+object OpenSearch {
 
     val client: RestClient by lazy {
         val username = environment["OPEN_SEARCH_USERNAME"]
