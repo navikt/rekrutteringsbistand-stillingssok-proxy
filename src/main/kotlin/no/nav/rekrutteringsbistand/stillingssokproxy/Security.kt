@@ -22,7 +22,10 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
         val erAutentisert =
             when {
                 roller.contains(Rolle.UNPROTECTED) -> true
-                roller.contains(Rolle.VEILEDER_ELLER_SYSTEMBRUKER) -> autentiserVeileder(hentTokenClaims(ctx, issuerProperties[Rolle.VEILEDER_ELLER_SYSTEMBRUKER]!!))
+                roller.contains(Rolle.VEILEDER_ELLER_SYSTEMBRUKER) ->
+                    autentiserVeileder(hentTokenClaims(ctx, issuerProperties, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
+                )
+
                 else -> false
             }
 
@@ -44,15 +47,10 @@ val autentiserVeileder = Autentiseringsmetode { claims ->
     claims != null && (erVeileder || erSystem)
 }
 
-private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties) =
-    lagTokenValidationHandler(issuerProperties)
+private fun hentTokenClaims(ctx: Context, issuerProperties: Map<Rolle, IssuerProperties>, rolle: Rolle) =
+    hentTokenValidationHandler(issuerProperties, rolle)
         .getValidatedTokens(ctx.httpRequest)
         .anyValidClaims.orElseGet { null }
-
-private fun lagTokenValidationHandler(issuerProperties: IssuerProperties) =
-    JwtTokenValidationHandler(
-        MultiIssuerConfiguration(mapOf(issuerProperties.cookieName to issuerProperties))
-    )
 
 private val Context.httpRequest: HttpRequest
     get() = object : HttpRequest {
