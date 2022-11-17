@@ -16,13 +16,13 @@ enum class Rolle : RouteRole {
     VEILEDER_ELLER_SYSTEMBRUKER,
 }
 
-fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
+fun styrTilgang(tokenValidationHandler: JwtTokenValidationHandler) =
     AccessManager { handler: Handler, ctx: Context, roller: Set<RouteRole> ->
 
         val erAutentisert =
             when {
                 roller.contains(Rolle.UNPROTECTED) -> true
-                roller.contains(Rolle.VEILEDER_ELLER_SYSTEMBRUKER) -> autentiserVeileder(hentTokenClaims(ctx, issuerProperties[Rolle.VEILEDER_ELLER_SYSTEMBRUKER]!!))
+                roller.contains(Rolle.VEILEDER_ELLER_SYSTEMBRUKER) -> autentiserVeileder(hentTokenClaims(ctx, tokenValidationHandler))
                 else -> false
             }
 
@@ -44,12 +44,12 @@ val autentiserVeileder = Autentiseringsmetode { claims ->
     claims != null && (erVeileder || erSystem)
 }
 
-private fun hentTokenClaims(ctx: Context, issuerProperties: IssuerProperties) =
-    lagTokenValidationHandler(issuerProperties)
+private fun hentTokenClaims(ctx: Context, tokenValidationHandler: JwtTokenValidationHandler) =
+    tokenValidationHandler
         .getValidatedTokens(ctx.httpRequest)
         .anyValidClaims.orElseGet { null }
 
-private fun lagTokenValidationHandler(issuerProperties: IssuerProperties) =
+fun lagTokenValidationHandler(issuerProperties: IssuerProperties) =
     JwtTokenValidationHandler(
         MultiIssuerConfiguration(mapOf(issuerProperties.cookieName to issuerProperties))
     )

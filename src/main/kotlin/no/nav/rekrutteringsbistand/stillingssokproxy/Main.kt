@@ -5,7 +5,6 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
-import io.javalin.security.RouteRole
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,11 +31,14 @@ fun main() {
 
 fun opprettJavalinMedTilgangskontroll(
     issuerProperties: Map<Rolle, IssuerProperties>
-): Javalin =
-    Javalin.create {config ->
+): Javalin {
+    val tokenValidationHandler = lagTokenValidationHandler(issuerProperties[Rolle.VEILEDER_ELLER_SYSTEMBRUKER]!!)
+
+    return Javalin.create { config ->
         config.http.defaultContentType = "application/json"
-        config.accessManager(styrTilgang(issuerProperties))
+        config.accessManager(styrTilgang(tokenValidationHandler))
     }.start(8300)
+}
 
 fun startApp(
     javalin: Javalin

@@ -2,6 +2,7 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
+import io.javalin.Javalin
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.assertj.core.api.Assertions.assertThat
@@ -13,21 +14,24 @@ import java.net.InetAddress
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StillingsokTest {
-
     private val mockOAuth2Server = MockOAuth2Server()
+    private lateinit var javalin: Javalin
+
     private val searchurl = "http://localhost:8300/stilling/_search"
 
     @BeforeAll
     fun init() {
-        LokalApplikasjon.startAppForTest()
         OsMock.startOsMock()
+
         mockOAuth2Server.start(InetAddress.getByName("localhost"), 18300)
+        javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+        startApp(javalin)
     }
 
     @AfterAll
     fun teardown() {
         mockOAuth2Server.shutdown()
-        LokalApplikasjon.avsluttAppForTest()
+        javalin.stop()
     }
 
     @Test
