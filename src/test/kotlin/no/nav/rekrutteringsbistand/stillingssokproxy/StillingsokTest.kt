@@ -27,6 +27,7 @@ class StillingsokTest {
     @AfterAll
     fun teardown() {
         mockOAuth2Server.shutdown()
+        LokalApplikasjon.avsluttAppForTest()
     }
 
     @Test
@@ -47,7 +48,7 @@ class StillingsokTest {
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
-                ),
+            ),
             audience = listOf(ownClientId)
         )
     )

@@ -15,11 +15,10 @@ import java.net.InetAddress
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SecurityTest {
-
-    val mockOAuth2Server = MockOAuth2Server()
-    val urlSomKreverAutentisering = "http://localhost:8300/stilling/_search"
-    val isAliveUrl = "http://localhost:8300/internal/isAlive"
-    val isReadyUrl = "http://localhost:8300/internal/isReady"
+    private val mockOAuth2Server = MockOAuth2Server()
+    private val urlSomKreverAutentisering = "http://localhost:8300/stilling/_search"
+    private val isAliveUrl = "http://localhost:8300/internal/isAlive"
+    private val isReadyUrl = "http://localhost:8300/internal/isReady"
 
     @BeforeAll
     fun init() {
@@ -30,6 +29,7 @@ class SecurityTest {
     @AfterAll
     fun teardown() {
         mockOAuth2Server.shutdown()
+        LokalApplikasjon.avsluttAppForTest()
     }
 
     @Test
@@ -110,28 +110,6 @@ class SecurityTest {
         assertThat(response.statusCode).isEqualTo(200)
     }
 
-    @Test
-    fun `Skal ikke kunne legge internal isAlive på URL som krever autentisering for å komme forbi sikkerhetsfilteret`() {
-        val fusketUrl = "$urlSomKreverAutentisering/internal/isAlive"
-
-        val fuelHttpClient = FuelManager()
-        val (_, response) = fuelHttpClient.get(fusketUrl)
-            .responseObject<String>()
-
-        assertThat(response.statusCode).isEqualTo(404)
-    }
-
-    @Test
-    fun `Skal ikke kunne legge på internal isAlive som param på URL som krever autentisering for å komme forbi sikkerhetsfilteret`() {
-        val fusketUrl = "$urlSomKreverAutentisering?internal/isAlive"
-
-        val fuelHttpClient = FuelManager()
-        val (_, response) = fuelHttpClient.get(fusketUrl)
-            .responseObject<String>()
-
-        assertThat(response.statusCode).isEqualTo(403)
-    }
-
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken(azureAdIssuer, "someclientid",
         DefaultOAuth2TokenCallback(
             issuerId = azureAdIssuer,
@@ -139,7 +117,7 @@ class SecurityTest {
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
-                ),
+            ),
             audience = listOf(ownClientId)
         )
     )
@@ -152,7 +130,7 @@ class SecurityTest {
                 Pair("name", "navn"),
                 Pair("NAVident", "NAVident"),
                 Pair("unique_name", "unique_name"),
-                ),
+            ),
             audience = listOf(clientIdOfSomeApp)
         )
     )
@@ -164,7 +142,7 @@ class SecurityTest {
             claims = mapOf(
                 Pair("name", "navn"),
                 Pair("unique_name", "unique_name"),
-                ),
+            ),
             audience = listOf(ownClientId)
         )
     )

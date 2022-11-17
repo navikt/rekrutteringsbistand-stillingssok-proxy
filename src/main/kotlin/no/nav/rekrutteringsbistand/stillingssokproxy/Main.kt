@@ -4,6 +4,8 @@ import io.github.cdimascio.dotenv.dotenv
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
+import io.javalin.http.Context
+import io.javalin.security.RouteRole
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,59 +16,78 @@ val Any.log: Logger
 fun log(name: String): Logger = LoggerFactory.getLogger(name)
 
 val environment = dotenv { ignoreIfMissing = true }
-val port = 8300
-val aliveUrl = "/internal/isAlive"
-val readyUrl = "/internal/isReady"
+
+fun main() {
+    try {
+        val issuerProperties = hentIssuerProperties()
+        val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+
+        startApp(javalin)
+    } catch (e: Exception) {
+        log("main()").error(e.toString(), e)
+        throw e
+    }
+}
+
+
+fun opprettJavalinMedTilgangskontroll(
+    issuerProperties: Map<Rolle, IssuerProperties>
+): Javalin =
+    Javalin.create {config ->
+        config.http.defaultContentType = "application/json"
+        config.accessManager(styrTilgang(issuerProperties))
+    }.start(8300)
 
 fun startApp(
-    issuerProperties: List<IssuerProperties>,
-    opprettSikkerhetsfilter: (javalin: Javalin, issuerProperties: List<IssuerProperties>, tillateUrl: List<String>) -> Any
+    javalin: Javalin
 ) {
-    val javalin = Javalin.create { config ->
-        config.http.defaultContentType = "application/json"
-    }
-
-    val tillatteUrl = listOf(aliveUrl, readyUrl)
-    opprettSikkerhetsfilter(javalin, issuerProperties, tillatteUrl)
-
     javalin.routes {
-        get(aliveUrl) { it.status(200) }
-        get(readyUrl) { it.status(200) }
-        post("/{indeks}/_search") { context ->
-            val openSearchSvar = søk(context.body(), context.queryParamMap(), context.pathParam("indeks"))
-            context
-                .status(openSearchSvar.statuskode)
-                .result(openSearchSvar.resultat)
-        }
-        post("/{indeks}/_explain/{dokumentnummer}") { context ->
-            val openSearchSvar = explain(
-                context.body(),
-                context.queryParamMap(),
-                context.pathParam("indeks"),
-                context.pathParam("dokumentnummer")
-            )
-            context
-                .status(openSearchSvar.statuskode)
-                .result(openSearchSvar.resultat)
-        }
-        get("/{indeks}/_doc/{dokumentid}") { context ->
-            val openSearchSvar = hentDokument(context.pathParam("dokumentid"), context.pathParam("indeks"))
-            context
-                .status(openSearchSvar.statuskode)
-                .result(openSearchSvar.resultat)
-        }
-    }.start(port)
+        get("/internal/isAlive", { it.status(200) }, Rolle.UNPROTECTED)
+        get("/internal/isReady", { it.status(200) }, Rolle.UNPROTECTED)
+
+        get("/{indeks}/_search", search, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
+        post("/{indeks}/_search", search, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
+        post("/{indeks}/_explain/{dokumentnummer}", explainDocument, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
+        get("/{indeks}/_doc/{dokumentid}", getDocument, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
+    }
 
     javalin.exception(Exception::class.java) { e, _ ->
         log("Main").error(e.toString(), e)
     }
 }
 
-fun main() {
-    try {
-        startApp(hentIssuerProperties(), ::lagSikkerhetsfilter)
-    } catch (e: Exception) {
-        log("main()").error(e.toString(), e)
-        throw e
-    }
+val search: (Context) -> Unit = { context ->
+    val openSearchSvar = søk(
+        context.body(),
+        context.queryParamMap(),
+        context.pathParam("indeks")
+    )
+
+    context
+        .status(openSearchSvar.statuskode)
+        .result(openSearchSvar.resultat)
+}
+
+val explainDocument: (Context) -> Unit = { context ->
+    val openSearchSvar = explain(
+        context.body(),
+        context.queryParamMap(),
+        context.pathParam("indeks"),
+        context.pathParam("dokumentnummer")
+    )
+
+    context
+        .status(openSearchSvar.statuskode)
+        .result(openSearchSvar.resultat)
+}
+
+val getDocument: (Context) -> Unit = { context ->
+    val openSearchSvar = hentDokument(
+        context.pathParam("dokumentid"),
+        context.pathParam("indeks")
+    )
+
+    context
+        .status(openSearchSvar.statuskode)
+        .result(openSearchSvar.resultat)
 }
