@@ -6,10 +6,8 @@ import io.javalin.http.Handler
 import io.javalin.security.AccessManager
 import io.javalin.security.RouteRole
 import no.nav.security.token.support.core.configuration.IssuerProperties
-import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.http.HttpRequest
 import no.nav.security.token.support.core.jwt.JwtTokenClaims
-import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 
 enum class Rolle : RouteRole {
     UNPROTECTED,
@@ -22,9 +20,11 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
         val erAutentisert =
             when {
                 roller.contains(Rolle.UNPROTECTED) -> true
-                roller.contains(Rolle.VEILEDER_ELLER_SYSTEMBRUKER) ->
-                    autentiserVeileder(hentTokenClaims(ctx, issuerProperties, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
-                )
+                roller.contains(Rolle.VEILEDER_ELLER_SYSTEMBRUKER) -> {
+                    val claims = hentValidTokenClaims(ctx, issuerProperties, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
+
+                    autentiserVeilederEllerSystembruker(claims)
+                }
 
                 else -> false
             }
@@ -36,18 +36,18 @@ fun styrTilgang(issuerProperties: Map<Rolle, IssuerProperties>) =
         }
     }
 
-fun interface Autentiseringsmetode {
-    operator fun invoke(claims: JwtTokenClaims?): Boolean
+fun autentiserVeilederEllerSystembruker(validClaims: JwtTokenClaims?): Boolean {
+    if (validClaims == null) {
+        return false;
+    }
+
+    val erVeileder = validClaims.get("NAVident") != null && validClaims["NAVident"].toString().isNotEmpty()
+    val erSystem = validClaims.get("sub") == validClaims.get("oid")
+
+    return erVeileder || erSystem
 }
 
-val autentiserVeileder = Autentiseringsmetode { claims ->
-    val erVeileder = claims?.get("NAVident") != null && claims["NAVident"].toString().isNotEmpty()
-    val erSystem = claims?.get("sub") == claims?.get("oid")
-
-    claims != null && (erVeileder || erSystem)
-}
-
-private fun hentTokenClaims(ctx: Context, issuerProperties: Map<Rolle, IssuerProperties>, rolle: Rolle) =
+private fun hentValidTokenClaims(ctx: Context, issuerProperties: Map<Rolle, IssuerProperties>, rolle: Rolle) =
     hentTokenValidationHandler(issuerProperties, rolle)
         .getValidatedTokens(ctx.httpRequest)
         .anyValidClaims.orElseGet { null }
