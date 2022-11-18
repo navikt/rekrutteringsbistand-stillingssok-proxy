@@ -26,7 +26,10 @@ fun hentTokenValidationHandler(
             MultiIssuerConfiguration(mapOf(issuerProperties.cookieName to issuerProperties))
         )
 
-        cache[rolle] = CachedHandler(newHandler, LocalDateTime.now().plusHours(1));
+        val expires = LocalDateTime.now().plusHours(1)
+
+        log("hentTokenValidationHandler").info("Henter og cacher nye public keys for issuer $rolle til $expires")
+        cache[rolle] = CachedHandler(newHandler, expires);
 
         newHandler
     }
