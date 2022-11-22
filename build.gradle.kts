@@ -27,10 +27,10 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("ch.qos.logback:logback-classic:1.4.4")
     implementation("io.github.cdimascio:dotenv-kotlin:6.3.1")
-    implementation("io.javalin:javalin:5.1.1")
+    implementation("io.javalin:javalin:5.1.4")
     implementation("net.logstash.logback:logstash-logback-encoder:7.2")
-    implementation("no.nav.security:token-validation-core:2.1.6")
-    implementation("org.opensearch.client:opensearch-rest-high-level-client:2.3.0")
+    implementation("no.nav.security:token-validation-core:2.1.8")
+    implementation("org.opensearch.client:opensearch-rest-high-level-client:2.4.0")
 
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
     testImplementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
