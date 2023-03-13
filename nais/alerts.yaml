@@ -10,7 +10,7 @@ spec:
     - name: rekrutteringsbistand-stillingssok-proxy
       rules:
         - alert: rekrutteringsbistand-stillingssok-proxy
-          expr: sum(up{app="rekrutteringsbistand-stillingssok-proxy", job="nais-system/monitoring-apps-tenant"}) == 0
+          expr: kube_deployment_status_replicas_available{deployment="rekrutteringsbistand-stillingssok-proxy"} == 0
           for: 1s
           annotations:
             summary: Appen er nede
