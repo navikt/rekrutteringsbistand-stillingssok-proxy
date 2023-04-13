@@ -26,9 +26,6 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: rekrutteringsbistand-statistikk-api
-          namespace: toi
-          cluster: {{fss-cluster}}
         - application: foresporsel-om-deling-av-cv-api
           namespace: arbeidsgiver-inkludering
           cluster: {{fss-cluster}}
