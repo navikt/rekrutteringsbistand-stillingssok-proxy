@@ -1,6 +1,6 @@
 {
   "ingress": [
-    "https://rekrutteringsbistand-stillingssok-proxy.dev.intern.nav.no"
+    "https://rekrutteringsbistand-stillingssok-proxy.intern.dev.nav.no"
   ],
   "fss-cluster": "dev-fss"
 }
