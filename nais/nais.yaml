@@ -30,9 +30,8 @@ spec:
           namespace: arbeidsgiver-inkludering
           cluster: {{fss-cluster}}
         - application: rekrutteringsbistand-stillingssok
-          namespace: toi
         - application: rekrutteringsbistand-container
-          namespace: toi
+        - application: rekrutteringsbistand
   openSearch:
     access: read
     instance: rekrutteringsbistand-stilling
