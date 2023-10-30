@@ -16,6 +16,13 @@ spec:
     path: /internal/isAlive
   readiness:
     path: /internal/isReady
+  replicas:
+    min: {{ min_replicas }}
+    max: {{ max_replicas }}
+  resources:
+    requests:
+      cpu: {{ requested_cpu }}
+      memory: 512Mi
   azure:
     application:
       enabled: true

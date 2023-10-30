@@ -1,6 +1,7 @@
 {
-  "ingress": [
-    "https://rekrutteringsbistand-stillingssok-proxy.intern.nav.no"
-  ],
-  "fss-cluster": "prod-fss"
+    "ingress": ["https://rekrutteringsbistand-stillingssok-proxy.intern.nav.no"],
+    "fss-cluster": "prod-fss",
+    "min_replicas": 2,
+    "max_replicas": 4,
+    "requested_cpu": "100m"
 }
