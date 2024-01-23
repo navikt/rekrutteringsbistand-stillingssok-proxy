@@ -2,11 +2,9 @@ name: Build & deploy
 
 on: [ push ]
 
-env:
-  IMAGE: ghcr.io/${{ github.repository }}/rekrutteringsbistand-stillingssok-proxy:${{ github.sha }}
-
 permissions:
-  packages: write
+  contents: read
+  id-token: write
 
 jobs:
   test:
@@ -34,6 +32,8 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/bump-dependency'
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -50,18 +50,17 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Build jar with Gradle
         run: ./gradlew shadowJar
-      - name: Build and publish Docker image
+      - name: Push docker image to GAR
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: toi
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+      - uses: nais/deploy/actions/deploy@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          docker build --tag ${IMAGE} .
-          echo ${GITHUB_TOKEN} | docker login ghcr.io -u ${GITHUB_REPOSITORY} --password-stdin
-          docker push ${IMAGE}
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
-          VAR: image=${{ env.IMAGE }}
+          VAR: image=${{ steps.docker-build-push.outputs.image }}
           RESOURCE: nais/nais.yaml
           VARS: nais/nais-dev.json
 
@@ -72,11 +71,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
-          VAR: image=${{ env.IMAGE }}
+          VAR: image=${{ needs.deploy-to-dev.outputs.image }}
           RESOURCE: nais/nais.yaml
           VARS: nais/nais-prod.json
 
@@ -86,8 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: nais/deploy/actions/deploy@v1
+      - uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-gcp
           RESOURCE: nais/alerts.yaml
