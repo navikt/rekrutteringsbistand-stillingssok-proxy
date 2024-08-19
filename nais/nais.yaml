@@ -41,8 +41,6 @@ spec:
         - application: foresporsel-om-deling-av-cv-api
           namespace: arbeidsgiver-inkludering
           cluster: {{fss-cluster}}
-        - application: rekrutteringsbistand-stillingssok
-        - application: rekrutteringsbistand-container
         - application: rekrutteringsbistand
   openSearch:
     access: read
