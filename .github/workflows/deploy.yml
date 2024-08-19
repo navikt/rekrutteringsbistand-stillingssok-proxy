@@ -30,7 +30,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/bump-dependency'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/tilgangsstyring'
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
