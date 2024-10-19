@@ -17,11 +17,11 @@ spec:
   readiness:
     path: /internal/isReady
   replicas:
-    min: {{ min_replicas }}
-    max: {{ max_replicas }}
+    min: {{min_replicas}}
+    max: {{max_replicas}}
   resources:
     requests:
-      cpu: {{ requested_cpu }}
+      cpu: {{requested_cpu}}
       memory: 512Mi
   azure:
     application:
@@ -31,10 +31,10 @@ spec:
         extra:
           - NAVident
         groups:
-          - id: {{ adGruppeModiaGenerellTilgang }}
-          - id: {{ adGruppeJobbsøkerrettet }}
-          - id: {{ adGruppeArbeidsgiverrettet }}
-          - id: {{ adGruppeUtvikler }}
+          - id: {{adGruppeModiaGenerellTilgang}}
+          - id: {{adGruppeJobbsøkerrettet}}
+          - id: {{adGruppeArbeidsgiverrettet}}
+          - id: {{adGruppeUtvikler}}
   accessPolicy:
     inbound:
       rules:
