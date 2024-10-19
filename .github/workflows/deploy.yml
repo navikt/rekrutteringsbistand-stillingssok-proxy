@@ -30,7 +30,7 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev
     needs: test
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/tilgangsstyring'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/trivy'
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
@@ -62,7 +62,7 @@ jobs:
           CLUSTER: dev-gcp
           VAR: image=${{ steps.docker-build-push.outputs.image }}
           RESOURCE: nais/nais.yaml
-          VARS: nais/nais-dev.json
+          VARS: nais/dev-gcp.json
 
   deploy-to-prod:
     name: Deploy to prod
@@ -76,7 +76,7 @@ jobs:
           CLUSTER: prod-gcp
           VAR: image=${{ needs.deploy-to-dev.outputs.image }}
           RESOURCE: nais/nais.yaml
-          VARS: nais/nais-prod.json
+          VARS: nais/prod-gcp.json
 
   deploy-alerts:
     name: Deploy alerts to prod
