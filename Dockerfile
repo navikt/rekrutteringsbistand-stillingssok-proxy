@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/baseimages/temurin:17
-COPY ./build/libs/rekrutteringsbistand-stillingssok-proxy-1.0-SNAPSHOT-all.jar app.jar
-
+FROM gcr.io/distroless/java17-debian12:nonroot
+ADD build/distributions/rekrutteringsbistand-stillingssok-proxy-1.0-SNAPSHOT.tar /
+ENTRYPOINT ["java", "-cp", "/rekrutteringsbistand-stillingssok-proxy-1.0-SNAPSHOT/lib/*", "no.nav.rekrutteringsbistand.stillingssokproxy.MainKt"]
 EXPOSE 8300
