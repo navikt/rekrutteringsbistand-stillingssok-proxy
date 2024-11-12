@@ -39,7 +39,10 @@ spec:
     inbound:
       rules:
         - application: foresporsel-om-deling-av-cv-api
-          namespace: arbeidsgiver-inkludering
+          namespace: arbeidsgiver
+          cluster: {{fss-cluster}}
+        - application: foresporsel-om-deling-av-cv-api
+          namespace: toi
           cluster: {{fss-cluster}}
         - application: rekrutteringsbistand
         - application: rekrutteringsbistand-frontend
