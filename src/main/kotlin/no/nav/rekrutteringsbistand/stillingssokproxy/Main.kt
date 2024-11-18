@@ -5,8 +5,12 @@ import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
-import io.javalin.security.RouteRole
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import no.nav.security.token.support.core.configuration.IssuerProperties
+import org.eclipse.jetty.server.Request
+import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.handler.ErrorHandler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -36,18 +40,33 @@ fun opprettJavalinMedTilgangskontroll(
     Javalin.create {config ->
         config.http.defaultContentType = "application/json"
         config.accessManager(styrTilgang(issuerProperties))
+        config.jetty.server {
+            val server = Server()
+
+            // Sett en tilpasset ErrorHandler
+            server.addBean(object : ErrorHandler() {
+                override fun handle(
+                    target: String?,
+                    baseRequest: Request?,
+                    request: HttpServletRequest?,
+                    response: HttpServletResponse
+                ) {
+                    if (response.status == 431) {
+                        val errorMsg = "431 - Request Header Fields Too Large"
+                        log("error431").warn(errorMsg)
+                        val secureLog = log("secureLog")
+                        secureLog.warn(errorMsg)
+                        secureLog.warn("Path: ${request?.requestURI}")
+                        secureLog.warn("Headers: ${request?.headerNames?.toList()?.joinToString { "$it=${request.getHeader(it)}" }}")
+                    }
+                }
+            }
+        }
     }.start(8300)
 
 fun startApp(
     javalin: Javalin
 ) {
-    javalin.error(431) { ctx ->
-        val errorMsg = "Request Header Fields Too Large"
-        log("error431").warn(errorMsg)
-        log("secureLog").warn("$errorMsg - Path: ${ctx.path()} - Headers: ${ctx.headerMap()}")
-
-        ctx.result(errorMsg).status(431)
-    }
     javalin.routes {
         get("/internal/isAlive", { it.status(200) }, Rolle.UNPROTECTED)
         get("/internal/isReady", { it.status(200) }, Rolle.UNPROTECTED)
