@@ -35,10 +35,6 @@ fun opprettJavalinMedTilgangskontroll(
     Javalin.create {config ->
         config.http.defaultContentType = "application/json"
         config.accessManager(styrTilgang(issuerProperties))
-        config.requestLogger.http { ctx, _ ->
-            log("error431").info("kall")
-            log("secureLog").info("Path: ${ctx.path()} - Headers: ${ctx.headerMap()}")
-        }
     }.start(8300)
 
 fun startApp(
