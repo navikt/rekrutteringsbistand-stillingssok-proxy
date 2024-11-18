@@ -43,6 +43,7 @@ fun startApp(
 ) {
     javalin.error(431) { ctx ->
         val errorMsg = "Request Header Fields Too Large"
+        log("error431").warn(errorMsg)
         log("secureLog").warn("$errorMsg - Path: ${ctx.path()} - Headers: ${ctx.headerMap()}")
 
         ctx.result(errorMsg).status(431)
