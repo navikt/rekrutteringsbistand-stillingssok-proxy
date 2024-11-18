@@ -60,7 +60,8 @@ fun opprettJavalinMedTilgangskontroll(
                         secureLog.warn("Headers: ${request?.headerNames?.toList()?.joinToString { "$it=${request.getHeader(it)}" }}")
                     }
                 }
-            }
+            })
+            server
         }
     }.start(8300)
 
