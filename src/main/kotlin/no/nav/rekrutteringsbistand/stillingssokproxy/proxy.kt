@@ -14,7 +14,8 @@ fun søk(jsonbody: String, params: Map<String, List<String>>, indeks: String): O
     return gjørRequest(request)
 }
 
-fun hentDokument(dokumentnummer: String, indeks: String): OpenSearchSvar = gjørRequest(Request("GET", "$indeks/_doc/$dokumentnummer"))
+fun hentDokument(dokumentnummer: String, indeks: String): OpenSearchSvar =
+    gjørRequest(Request("GET", "$indeks/_doc/$dokumentnummer"))
 
 fun explain(
     jsonbody: String,
@@ -31,7 +32,6 @@ private fun gjørRequest(request: Request): OpenSearchSvar = try {
     val statusKode = response.statusLine.statusCode
     val resultat = EntityUtils.toString(response.entity)
     OpenSearchSvar(statusKode, resultat)
-
 } catch (e: Exception) {
     log("SearchClient").error("Feil ved kall mot OpenSearch", e)
 
@@ -40,6 +40,7 @@ private fun gjørRequest(request: Request): OpenSearchSvar = try {
             e.response.statusLine.statusCode,
             EntityUtils.toString(e.response.entity)
         )
+
         is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
         is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
         else -> throw InternalServerErrorResponse()
