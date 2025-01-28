@@ -11,9 +11,11 @@ const val clientIdOfSomeApp = "client-id"
 fun main() {
     OsMock.startOsMock()
 
-    val javalin = opprettJavalinMedTilgangskontroll(LokalApplikasjon.issuerProperties)
+    val javalin = opprettJavalinMedTilgangskontroll()
 
-    startApp(javalin)
+
+
+    startApp(javalin, LokalApplikasjon.issuerProperties)
 }
 
 object LokalApplikasjon {
@@ -23,10 +25,10 @@ object LokalApplikasjon {
     fun startAppForTest() {
         OsMock.startOsMock()
 
-        javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+        javalin = opprettJavalinMedTilgangskontroll()
 
         if (!javalinServerStartet) {
-            startApp(javalin)
+            startApp(javalin, issuerProperties)
 
             javalinServerStartet = true
         }
@@ -37,11 +39,14 @@ object LokalApplikasjon {
         javalinServerStartet = false
     }
 
-    val issuerProperties = mapOf(
-        Rolle.VEILEDER_ELLER_SYSTEMBRUKER to IssuerProperties(
-            URL("http://localhost:18300/$azureAdIssuer/.well-known/openid-configuration"),
-            listOf(ownClientId),
-            "azuread"
+    val issuerProperties =
+        mapOf(
+            Rolle.VEILEDER_ELLER_SYSTEMBRUKER to
+                    ("http://localhost:18300/azure-ad-issuer" to
+                            IssuerProperties(
+                                discoveryUrl = URL("http://localhost:18300/$azureAdIssuer/.well-known/openid-configuration"),
+                                acceptedAudience = listOf(ownClientId)
+                            ))
         )
-    )
 }
+
