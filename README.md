@@ -21,6 +21,7 @@ Content-Type: application/json
 }
 ```
 
+
 URL, brukernavn og passord hentes fra en Kubernetes-pod slik:
 1. I Naisdevice-appen, koble deg til `aiven-prod`
 2. Finn navnet på en kjørende Kubernetes-pod ved å kjøre f.eks. `kubectl get pods -n arbeidsgiver | grep rekrutteringsbistand-stillingssok-proxy`

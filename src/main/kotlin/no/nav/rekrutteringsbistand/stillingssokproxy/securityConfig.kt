@@ -1,15 +1,15 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import no.nav.security.token.support.core.configuration.IssuerProperties
+import java.net.URI
 import java.net.URL
 
-fun hentIssuerProperties() =
+fun hentIssuerProperties(envs: Map<String, String>) =
     mapOf(
         Rolle.VEILEDER_ELLER_SYSTEMBRUKER to
-            IssuerProperties(
-                URL(System.getenv("AZURE_APP_WELL_KNOWN_URL")),
-                listOf(System.getenv("AZURE_APP_CLIENT_ID")),
-                System.getenv("AZURE_OPENID_CONFIG_ISSUER")
-            )
+                (envs["AZURE_OPENID_CONFIG_ISSUER"]!! to
+                        IssuerProperties(
+                            discoveryUrl = URI(envs["AZURE_APP_WELL_KNOWN_URL"]!!).toURL(),
+                            acceptedAudience = listOf(envs["AZURE_APP_CLIENT_ID"]!!)
+                        ))
     )
-

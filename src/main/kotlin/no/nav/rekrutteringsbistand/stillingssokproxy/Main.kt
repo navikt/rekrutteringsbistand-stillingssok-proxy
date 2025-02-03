@@ -19,10 +19,10 @@ val environment = dotenv { ignoreIfMissing = true }
 
 fun main() {
     try {
-        val issuerProperties = hentIssuerProperties()
-        val javalin = opprettJavalinMedTilgangskontroll(issuerProperties)
+        val issuerProperties = hentIssuerProperties(System.getenv())
+        val javalin = opprettJavalinMedTilgangskontroll()
 
-        startApp(javalin)
+        startApp(javalin, issuerProperties)
     } catch (e: Exception) {
         log("main()").error(e.toString(), e)
         throw e
@@ -30,25 +30,23 @@ fun main() {
 }
 
 
-fun opprettJavalinMedTilgangskontroll(
-    issuerProperties: Map<Rolle, IssuerProperties>
-): Javalin =
+fun opprettJavalinMedTilgangskontroll(): Javalin =
     Javalin.create {config ->
         config.http.defaultContentType = "application/json"
-        config.accessManager(styrTilgang(issuerProperties))
     }.start(8300)
 
 fun startApp(
-    javalin: Javalin
+    javalin: Javalin,
+    issuerProperties:Map<Rolle, Pair<String, IssuerProperties>>,
 ) {
-    javalin.routes {
-        get("/internal/isAlive", { it.status(200) }, Rolle.UNPROTECTED)
-        get("/internal/isReady", { it.status(200) }, Rolle.UNPROTECTED)
+    javalin.apply {
+        get("/internal/isAlive", { it.status(200) })
+        get("/internal/isReady", { it.status(200) })
 
-        get("/{indeks}/_search", search, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
-        post("/{indeks}/_search", search, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
-        post("/{indeks}/_explain/{dokumentnummer}", explainDocument, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
-        get("/{indeks}/_doc/{dokumentid}", getDocument, Rolle.VEILEDER_ELLER_SYSTEMBRUKER)
+        get("/{indeks}/_search", search(issuerProperties))
+        post("/{indeks}/_search", search(issuerProperties))
+        post("/{indeks}/_explain/{dokumentnummer}", explainDocument(issuerProperties))
+        get("/{indeks}/_doc/{dokumentid}", getDocument(issuerProperties))
     }
 
     javalin.exception(Exception::class.java) { e, _ ->
@@ -56,38 +54,44 @@ fun startApp(
     }
 }
 
-val search: (Context) -> Unit = { context ->
-    val openSearchSvar = søk(
-        context.body(),
-        context.queryParamMap(),
-        context.pathParam("indeks")
-    )
-
-    context
-        .status(openSearchSvar.statuskode)
-        .result(openSearchSvar.resultat)
+val search: (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = { issuerProps ->
+    { context ->
+        context.sjekkTilgang(Rolle.VEILEDER_ELLER_SYSTEMBRUKER, issuerProps)
+        val openSearchSvar = søk(
+            context.body(),
+            context.queryParamMap(),
+            context.pathParam("indeks")
+        )
+        context.status(openSearchSvar.statuskode).result(openSearchSvar.resultat)
+    }
 }
 
-val explainDocument: (Context) -> Unit = { context ->
-    val openSearchSvar = explain(
-        context.body(),
-        context.queryParamMap(),
-        context.pathParam("indeks"),
-        context.pathParam("dokumentnummer")
-    )
+val explainDocument:  (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = { issuerProps ->
+    { context ->
+        context.sjekkTilgang(Rolle.VEILEDER_ELLER_SYSTEMBRUKER, issuerProps)
+        val openSearchSvar = explain(
+            context.body(),
+            context.queryParamMap(),
+            context.pathParam("indeks"),
+            context.pathParam("dokumentnummer")
+        )
 
-    context
-        .status(openSearchSvar.statuskode)
-        .result(openSearchSvar.resultat)
+        context
+            .status(openSearchSvar.statuskode)
+            .result(openSearchSvar.resultat)
+    }
 }
 
-val getDocument: (Context) -> Unit = { context ->
-    val openSearchSvar = hentDokument(
-        context.pathParam("dokumentid"),
-        context.pathParam("indeks")
-    )
+val getDocument: (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = { issuerProps ->
+    { context ->
+        context.sjekkTilgang(Rolle.VEILEDER_ELLER_SYSTEMBRUKER, issuerProps)
+        val openSearchSvar = hentDokument(
+            context.pathParam("dokumentid"),
+            context.pathParam("indeks")
+        )
 
-    context
-        .status(openSearchSvar.statuskode)
-        .result(openSearchSvar.resultat)
+        context
+            .status(openSearchSvar.statuskode)
+            .result(openSearchSvar.resultat)
+    }
 }
