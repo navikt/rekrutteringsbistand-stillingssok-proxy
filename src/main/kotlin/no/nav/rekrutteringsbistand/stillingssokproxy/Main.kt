@@ -68,6 +68,7 @@ val search: (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = 
 
 val explainDocument:  (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = { issuerProps ->
     { context ->
+        context.sjekkTilgang(Rolle.VEILEDER_ELLER_SYSTEMBRUKER, issuerProps)
         val openSearchSvar = explain(
             context.body(),
             context.queryParamMap(),
@@ -83,6 +84,7 @@ val explainDocument:  (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) 
 
 val getDocument: (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = { issuerProps ->
     { context ->
+        context.sjekkTilgang(Rolle.VEILEDER_ELLER_SYSTEMBRUKER, issuerProps)
         val openSearchSvar = hentDokument(
             context.pathParam("dokumentid"),
             context.pathParam("indeks")
