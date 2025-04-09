@@ -43,6 +43,7 @@ spec:
           cluster: {{fss-cluster}}
         - application: rekrutteringsbistand
         - application: rekrutteringsbistand-frontend
+        - application: rekrutteringsbistand-stilling-api
   openSearch:
     access: read
     instance: rekrutteringsbistand-stilling
