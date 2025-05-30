@@ -9,6 +9,8 @@ import org.opensearch.client.Request
 import org.opensearch.client.ResponseException
 import java.io.IOException
 
+private val log = noClassLogger()
+
 fun søk(jsonbody: String, params: Map<String, List<String>>, indeks: String): OpenSearchSvar {
     val request = openSearchRequest("GET", "$indeks/_search", params, jsonbody)
     return gjørRequest(request)
@@ -33,7 +35,7 @@ private fun gjørRequest(request: Request): OpenSearchSvar = try {
     val resultat = EntityUtils.toString(response.entity)
     OpenSearchSvar(statusKode, resultat)
 } catch (e: Exception) {
-    log("SearchClient").error("Feil ved kall mot OpenSearch", e)
+    log.error("Feil ved kall mot OpenSearch med ${request::class.qualifiedName}=$request", e)
 
     when (e) {
         is ResponseException -> OpenSearchSvar(

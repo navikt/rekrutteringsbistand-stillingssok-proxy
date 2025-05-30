@@ -5,6 +5,8 @@ import no.nav.security.token.support.core.configuration.MultiIssuerConfiguration
 import no.nav.security.token.support.core.validation.JwtTokenValidationHandler
 import java.time.LocalDateTime
 
+private val log = noClassLogger()
+
 data class CachedHandler(
     val handler: JwtTokenValidationHandler,
     val expires: LocalDateTime,
@@ -23,7 +25,7 @@ fun hentTokenValidationHandler(
         cachedHandler.handler
     } else {
         val expires = LocalDateTime.now().plusHours(1)
-        log("hentTokenValidationHandler").info("Henter og cacher nye public keys for issuer $rolle til $expires")
+        log.info("Henter og cacher nye public keys for issuer $rolle til $expires")
 
         val newHandler = JwtTokenValidationHandler(
             MultiIssuerConfiguration(mapOf(issuer to issuerProperties))

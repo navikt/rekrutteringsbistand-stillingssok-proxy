@@ -2,10 +2,7 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import io.github.cdimascio.dotenv.dotenv
 import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder.get
-import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
-import io.javalin.security.RouteRole
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -13,7 +10,12 @@ import org.slf4j.LoggerFactory
 val Any.log: Logger
     get() = LoggerFactory.getLogger(this::class.java)
 
-fun log(name: String): Logger = LoggerFactory.getLogger(name)
+fun noClassLogger(): Logger {
+    val callerClassName = Throwable().stackTrace[1].className
+    return LoggerFactory.getLogger(callerClassName)
+}
+
+private val log = noClassLogger()
 
 val environment = dotenv { ignoreIfMissing = true }
 
@@ -24,20 +26,20 @@ fun main() {
 
         startApp(javalin, issuerProperties)
     } catch (e: Exception) {
-        log("main()").error(e.toString(), e)
+        log.error(e.toString(), e)
         throw e
     }
 }
 
 
 fun opprettJavalinMedTilgangskontroll(): Javalin =
-    Javalin.create {config ->
+    Javalin.create { config ->
         config.http.defaultContentType = "application/json"
     }.start(8300)
 
 fun startApp(
     javalin: Javalin,
-    issuerProperties:Map<Rolle, Pair<String, IssuerProperties>>,
+    issuerProperties: Map<Rolle, Pair<String, IssuerProperties>>,
 ) {
     javalin.apply {
         get("/internal/isAlive", { it.status(200) })
@@ -50,7 +52,7 @@ fun startApp(
     }
 
     javalin.exception(Exception::class.java) { e, _ ->
-        log("Main").error(e.toString(), e)
+        log.error(e.toString(), e)
     }
 }
 
@@ -66,7 +68,7 @@ val search: (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = 
     }
 }
 
-val explainDocument:  (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = { issuerProps ->
+val explainDocument: (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = { issuerProps ->
     { context ->
         context.sjekkTilgang(Rolle.VEILEDER_ELLER_SYSTEMBRUKER, issuerProps)
         val openSearchSvar = explain(
