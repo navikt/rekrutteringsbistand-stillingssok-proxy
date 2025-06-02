@@ -46,7 +46,7 @@ spec:
         - application: rekrutteringsbistand-stilling-api
   openSearch:
     access: read
-    instance: rekrutteringsbistand-stilling
+    instance: toi-stilling
   observability:
     logging:
       destinations:
