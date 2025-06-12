@@ -8,6 +8,7 @@ import org.apache.http.util.EntityUtils
 import org.opensearch.client.Request
 import org.opensearch.client.ResponseException
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 private val log = noClassLogger()
 
@@ -30,8 +31,16 @@ fun explain(
 }
 
 private fun gjørRequest(request: Request): OpenSearchSvar = try {
+    val now = System.currentTimeMillis()
+    val target = Regex("https?://([^/]*)/?.*").matchEntire(request.endpoint)?.groups?.drop(1)?.firstOrNull()?.value ?: request.endpoint
+
     val response = OpenSearch.client.performRequest(request)
     val statusKode = response.statusLine.statusCode
+
+    Singeltons.meterRegistry.let { m ->
+        val meter = m.timer("outbound_requests", "target", target, "status", statusKode.toString())
+        meter.record(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
+    }
     val resultat = EntityUtils.toString(response.entity)
     OpenSearchSvar(statusKode, resultat)
 } catch (e: Exception) {
