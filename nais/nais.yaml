@@ -23,6 +23,9 @@ spec:
     requests:
       cpu: {{requested_cpu}}
       memory: 512Mi
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
   azure:
     application:
       enabled: true

@@ -27,9 +27,13 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.16")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.0")
     implementation("io.javalin:javalin:6.4.0")
+    implementation("io.javalin:javalin-micrometer:6.4.0")
     implementation("net.logstash.logback:logstash-logback-encoder:8.0")
     implementation("no.nav.security:token-validation-core:5.0.14")
     implementation("org.opensearch.client:opensearch-rest-high-level-client:2.18.0")
+    implementation("io.micrometer:micrometer-core:1.15.0")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.15.0")
+    implementation("io.prometheus:simpleclient_common:0.16.0")
 
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
     testImplementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")

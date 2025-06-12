@@ -3,6 +3,9 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 import io.github.cdimascio.dotenv.dotenv
 import io.javalin.Javalin
 import io.javalin.http.Context
+import io.javalin.micrometer.MicrometerPlugin
+import io.prometheus.client.exporter.common.TextFormat
+import no.nav.rekrutteringsbistand.stillingssokproxy.Singeltons.meterRegistry
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -34,6 +37,9 @@ fun main() {
 
 fun opprettJavalinMedTilgangskontroll(): Javalin =
     Javalin.create { config ->
+        config.registerPlugin(MicrometerPlugin { micrometerConfig ->
+            micrometerConfig.registry = meterRegistry
+        })
         config.http.defaultContentType = "application/json"
     }.start(8300)
 
@@ -44,6 +50,7 @@ fun startApp(
     javalin.apply {
         get("/internal/isAlive", { it.status(200) })
         get("/internal/isReady", { it.status(200) })
+        get("/internal/prometheus", { it.contentType(TextFormat.CONTENT_TYPE_004).result(meterRegistry.scrape()) })
 
         get("/{indeks}/_search", search(issuerProperties))
         post("/{indeks}/_search", search(issuerProperties))
