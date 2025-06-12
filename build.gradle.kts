@@ -33,6 +33,7 @@ dependencies {
     implementation("org.opensearch.client:opensearch-rest-high-level-client:2.18.0")
     implementation("io.micrometer:micrometer-core:1.15.0")
     implementation("io.micrometer:micrometer-registry-prometheus:1.15.0")
+    implementation("io.prometheus:simpleclient_common:0.16.0")
 
     testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
     testImplementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
