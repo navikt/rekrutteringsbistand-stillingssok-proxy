@@ -49,7 +49,7 @@ spec:
         - application: rekrutteringsbistand-stilling-api
   openSearch:
     access: read
-    instance: toi-stilling
+    instance: rekrutteringsbistand-stilling
   observability:
     logging:
       destinations:
