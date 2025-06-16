@@ -9,6 +9,8 @@ import no.nav.rekrutteringsbistand.stillingssokproxy.Singeltons.meterRegistry
 import no.nav.security.token.support.core.configuration.IssuerProperties
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slf4j.Marker
+import org.slf4j.MarkerFactory
 
 val Any.log: Logger
     get() = LoggerFactory.getLogger(this::class.java)
@@ -17,6 +19,8 @@ fun noClassLogger(): Logger {
     val callerClassName = Throwable().stackTrace[1].className
     return LoggerFactory.getLogger(callerClassName)
 }
+
+val teamLogsMarker: Marker = MarkerFactory.getMarker("TEAM_LOGS")
 
 private val log = noClassLogger()
 
