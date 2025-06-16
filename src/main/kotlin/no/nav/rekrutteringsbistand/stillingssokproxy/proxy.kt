@@ -36,8 +36,6 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar = tr
     val response = OpenSearch.client.performRequest(request)
     val statusKode = response.statusLine.statusCode
 
-    log.info(teamLogsMarker, "Kall mot opensearch $kortUrl:  ${EntityUtils.toString(request.entity)}")
-
     Singeltons.meterRegistry.let { m ->
         val meter = m.timer("outbound_requests", "target", kortUrl, "status", statusKode.toString())
         meter.record(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
