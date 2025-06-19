@@ -47,6 +47,10 @@ spec:
         - application: rekrutteringsbistand
         - application: rekrutteringsbistand-frontend
         - application: rekrutteringsbistand-stilling-api
+    outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
   openSearch:
     access: read
     instance: toi-stilling

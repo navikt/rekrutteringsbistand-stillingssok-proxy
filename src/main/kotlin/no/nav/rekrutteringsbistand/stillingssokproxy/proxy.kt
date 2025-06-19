@@ -46,11 +46,13 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar = tr
     log.error("Feil ved kall mot OpenSearch med ${request::class.qualifiedName}=$request", e)
 
     when (e) {
-        is ResponseException -> OpenSearchSvar(
-            e.response.statusLine.statusCode,
-            EntityUtils.toString(e.response.entity)
-        )
-
+        is ResponseException -> {
+            log.error(teamLogsMarker, "Søk som feilet mot opensearch: ${EntityUtils.toString(request.entity)}")
+            OpenSearchSvar(
+                e.response.statusLine.statusCode,
+                EntityUtils.toString(e.response.entity)
+            )
+        }
         is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
         is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
         else -> throw InternalServerErrorResponse()
