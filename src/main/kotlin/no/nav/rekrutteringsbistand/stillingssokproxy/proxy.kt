@@ -47,7 +47,9 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar = tr
 
     when (e) {
         is ResponseException -> {
-            log.error(teamLogsMarker, "Søk som feilet mot opensearch: ${EntityUtils.toString(request.entity)}")
+            if(request.entity != null) {
+                log.error(teamLogsMarker, "Søk som feilet mot opensearch: ${EntityUtils.toString(request.entity)}")
+            }
             OpenSearchSvar(
                 e.response.statusLine.statusCode,
                 EntityUtils.toString(e.response.entity)
