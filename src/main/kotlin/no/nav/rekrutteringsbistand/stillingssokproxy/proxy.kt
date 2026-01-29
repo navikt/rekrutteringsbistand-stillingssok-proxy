@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 private val log = noClassLogger()
 
 fun søk(jsonbody: String, params: Map<String, List<String>>, indeks: String): OpenSearchSvar {
-    val request = openSearchRequest("POST", "$indeks/_search", params, jsonbody)
+    val request = openSearchRequest("POST", "/$indeks/_search", params, jsonbody)
     return gjørRequest(request, "/stilling/_search")
 }
 
@@ -50,20 +50,31 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar = tr
             val response = e.response
             val statusCode = response.statusLine.statusCode
             val requestLine = response.requestLine
+            val responseBody = EntityUtils.toString(response.entity)
+
             log.error(
                 "Feil ved kall mot OpenSearch. " +
                 "Method: ${requestLine.method}, " +
                 "URI: ${requestLine.uri}, " +
                 "Host: ${response.host}, " +
-                "HTTP Status: $statusCode"
+                "HTTP Status: $statusCode. " +
+                "Se team-logs for detaljer."
             )
+
+            val fullLogMessage = "Feil ved kall mot OpenSearch. " +
+                    "Method: ${requestLine.method}, " +
+                    "URI: ${requestLine.uri}, " +
+                    "Params: ${request.parameters}, " +
+                    "Host: ${response.host}, " +
+                    "HTTP Status: $statusCode, " +
+                    "Response: $responseBody"
+
+            log.error(teamLogsMarker, fullLogMessage)
+
             if(request.entity != null) {
-                log.error(teamLogsMarker, "Søk som feilet mot opensearch: ${EntityUtils.toString(request.entity)}")
+                log.error(teamLogsMarker, "Søk som feilet mot opensearch (request body): ${EntityUtils.toString(request.entity)}")
             }
-            OpenSearchSvar(
-                statusCode,
-                EntityUtils.toString(e.response.entity)
-            )
+            OpenSearchSvar(statusCode, responseBody)
         }
         is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
         is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
