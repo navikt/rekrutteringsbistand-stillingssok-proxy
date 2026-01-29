@@ -18,7 +18,7 @@ fun søk(jsonbody: String, params: Map<String, List<String>>, indeks: String): O
 }
 
 fun hentDokument(dokumentnummer: String, indeks: String): OpenSearchSvar =
-    gjørRequest(Request("GET", "$indeks/_doc/$dokumentnummer"), "/stilling/_doc")
+    gjørRequest(Request("GET", "/$indeks/_doc/$dokumentnummer"), "/stilling/_doc")
 
 fun explain(
     jsonbody: String,
@@ -26,7 +26,7 @@ fun explain(
     indeks: String,
     dokumentnummer: String
 ): OpenSearchSvar {
-    val request = openSearchRequest("GET", "$indeks/_explain/$dokumentnummer", params, jsonbody)
+    val request = openSearchRequest("GET", "/$indeks/_explain/$dokumentnummer", params, jsonbody)
     return gjørRequest(request, "/stilling/_explain")
 }
 
