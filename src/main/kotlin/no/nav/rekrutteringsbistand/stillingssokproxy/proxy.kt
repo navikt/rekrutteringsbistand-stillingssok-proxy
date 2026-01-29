@@ -43,8 +43,8 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar = tr
     val resultat = EntityUtils.toString(response.entity)
     OpenSearchSvar(statusKode, resultat)
 } catch (e: Exception) {
-        log.error("Feil ved kall mot OpenSearch med ${request::class.qualifiedName}=$request", e)
-    
+    log.error("Feil ved kall mot OpenSearch med ${request::class.qualifiedName}=$request", e)
+
     when (e) {
         is ResponseException -> {
             val response = e.response
