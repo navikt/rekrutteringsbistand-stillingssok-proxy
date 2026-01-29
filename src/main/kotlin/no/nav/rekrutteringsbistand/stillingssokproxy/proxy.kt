@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 private val log = noClassLogger()
 
 fun søk(jsonbody: String, params: Map<String, List<String>>, indeks: String): OpenSearchSvar {
-    val request = openSearchRequest("GET", "$indeks/_search", params, jsonbody)
+    val request = openSearchRequest("POST", "$indeks/_search", params, jsonbody)
     return gjørRequest(request, "/stilling/_search")
 }
 
@@ -47,11 +47,21 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar = tr
 
     when (e) {
         is ResponseException -> {
+            val response = e.response
+            val statusCode = response.statusLine.statusCode
+            val requestLine = response.requestLine
+            log.error(
+                "Feil ved kall mot OpenSearch. " +
+                "Method: ${requestLine.method}, " +
+                "URI: ${requestLine.uri}, " +
+                "Host: ${response.host}, " +
+                "HTTP Status: $statusCode"
+            )
             if(request.entity != null) {
                 log.error(teamLogsMarker, "Søk som feilet mot opensearch: ${EntityUtils.toString(request.entity)}")
             }
             OpenSearchSvar(
-                e.response.statusLine.statusCode,
+                statusCode,
                 EntityUtils.toString(e.response.entity)
             )
         }
