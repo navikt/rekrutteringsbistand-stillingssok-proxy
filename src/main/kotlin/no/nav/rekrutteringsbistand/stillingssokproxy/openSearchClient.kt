@@ -12,6 +12,7 @@ object OpenSearch {
         val username = environment["OPEN_SEARCH_USERNAME"]
         val password = environment["OPEN_SEARCH_PASSWORD"]
         val url = environment["OPEN_SEARCH_URI"]
+
         RestClient
             .builder(HttpHost.create(url))
             .setRequestConfigCallback {
