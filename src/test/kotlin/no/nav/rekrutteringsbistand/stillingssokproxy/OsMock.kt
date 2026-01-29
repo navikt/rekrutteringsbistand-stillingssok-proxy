@@ -14,7 +14,6 @@ object OsMock {
         ClientAndServer.startClientAndServer(9000)
             .`when`(
                 request()
-                    .withMethod("GET")
                     .withPath(".*")
             )
             .respond(
