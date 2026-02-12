@@ -44,8 +44,8 @@ spec:
         - application: foresporsel-om-deling-av-cv-api
           namespace: toi
           cluster: {{fss-cluster}}
-        - application: rekrutteringsbistand
         - application: rekrutteringsbistand-frontend
+        - application: rekrutteringsbistand-frontend2
         - application: rekrutteringsbistand-stilling-api
     outbound:
       rules:
