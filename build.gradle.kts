@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.21"
+    kotlin("jvm") version "2.3.0"
     application
 }
 
@@ -10,8 +10,8 @@ application {
     mainClass.set("no.nav.rekrutteringsbistand.stillingssokproxy.MainKt")
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+kotlin {
+    jvmToolchain(25)
 }
 
 tasks.withType<Test> {
