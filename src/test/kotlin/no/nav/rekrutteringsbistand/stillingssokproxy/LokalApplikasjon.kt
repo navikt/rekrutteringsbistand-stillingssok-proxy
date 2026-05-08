@@ -10,12 +10,7 @@ const val clientIdOfSomeApp = "client-id"
 
 fun main() {
     OsMock.startOsMock()
-
-    val javalin = opprettJavalinMedTilgangskontroll()
-
-
-
-    startApp(javalin, LokalApplikasjon.issuerProperties)
+    startApp(LokalApplikasjon.issuerProperties)
 }
 
 object LokalApplikasjon {
@@ -25,11 +20,8 @@ object LokalApplikasjon {
     fun startAppForTest() {
         OsMock.startOsMock()
 
-        javalin = opprettJavalinMedTilgangskontroll()
-
         if (!javalinServerStartet) {
-            startApp(javalin, issuerProperties)
-
+            javalin = startApp(issuerProperties)
             javalinServerStartet = true
         }
     }
@@ -49,3 +41,4 @@ object LokalApplikasjon {
                             ))
         )
 }
+

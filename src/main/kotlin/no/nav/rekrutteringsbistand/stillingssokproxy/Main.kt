@@ -29,43 +29,34 @@ val environment = dotenv { ignoreIfMissing = true }
 fun main() {
     try {
         val issuerProperties = hentIssuerProperties(System.getenv())
-        val javalin = opprettJavalinMedTilgangskontroll()
-
-        startApp(javalin, issuerProperties)
+        startApp(issuerProperties)
     } catch (e: Exception) {
         log.error(e.toString(), e)
         throw e
     }
 }
 
-
-fun opprettJavalinMedTilgangskontroll(): Javalin =
-    Javalin.create { config ->
-        config.registerPlugin(MicrometerPlugin { micrometerConfig ->
-            micrometerConfig.registry = meterRegistry
-        })
-        config.http.defaultContentType = "application/json"
-    }.start(8300)
-
 fun startApp(
-    javalin: Javalin,
     issuerProperties: Map<Rolle, Pair<String, IssuerProperties>>,
-) {
-    javalin.apply {
-        get("/internal/isAlive", { it.status(200) })
-        get("/internal/isReady", { it.status(200) })
-        get("/internal/prometheus", { it.contentType(TextFormat.CONTENT_TYPE_004).result(meterRegistry.scrape()) })
+): Javalin =
+    Javalin.create { config ->
+        config.registerPlugin(MicrometerPlugin { it.registry = meterRegistry })
+        config.http.defaultContentType = "application/json"
 
-        get("/{indeks}/_search", search(issuerProperties))
-        post("/{indeks}/_search", search(issuerProperties))
-        post("/{indeks}/_explain/{dokumentnummer}", explainDocument(issuerProperties))
-        get("/{indeks}/_doc/{dokumentid}", getDocument(issuerProperties))
-    }
+        with(config.routes) {
+            get("/internal/isAlive") { it.status(200) }
+            get("/internal/isReady") { it.status(200) }
+            get("/internal/prometheus") { it.contentType(TextFormat.CONTENT_TYPE_004).result(meterRegistry.scrape()) }
+            get("/{indeks}/_search", search(issuerProperties))
+            post("/{indeks}/_search", search(issuerProperties))
+            post("/{indeks}/_explain/{dokumentnummer}", explainDocument(issuerProperties))
+            get("/{indeks}/_doc/{dokumentid}", getDocument(issuerProperties))
 
-    javalin.exception(Exception::class.java) { e, _ ->
-        log.error(e.toString(), e)
-    }
-}
+            exception(Exception::class.java) { e, _ ->
+                log.error(e.toString(), e)
+            }
+        }
+    }.start(8300)
 
 val search: (Map<Rolle, Pair<String, IssuerProperties>>) -> (Context) -> Unit = { issuerProps ->
     { context ->
