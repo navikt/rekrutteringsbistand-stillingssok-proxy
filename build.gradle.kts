@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version "2.1.21"
     application
 }
 
@@ -42,4 +42,5 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.11.4")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testImplementation("org.mock-server:mockserver-netty:5.15.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
