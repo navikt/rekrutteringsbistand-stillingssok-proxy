@@ -2,7 +2,7 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import io.javalin.Javalin
 import no.nav.security.token.support.core.configuration.IssuerProperties
-import java.net.URL
+import java.net.URI
 
 const val azureAdIssuer = "azure-ad-issuer"
 const val ownClientId = "audience"
@@ -44,9 +44,8 @@ object LokalApplikasjon {
             Rolle.VEILEDER_ELLER_SYSTEMBRUKER to
                     ("http://localhost:18300/azure-ad-issuer" to
                             IssuerProperties(
-                                discoveryUrl = URL("http://localhost:18300/$azureAdIssuer/.well-known/openid-configuration"),
+                                discoveryUrl = URI("http://localhost:18300/$azureAdIssuer/.well-known/openid-configuration").toURL(),
                                 acceptedAudience = listOf(ownClientId)
                             ))
         )
 }
-
