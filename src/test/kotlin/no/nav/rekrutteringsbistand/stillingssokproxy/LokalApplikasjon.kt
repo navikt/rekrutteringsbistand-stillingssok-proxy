@@ -14,21 +14,15 @@ fun main() {
 }
 
 object LokalApplikasjon {
-    private var javalinServerStartet = false
     private lateinit var javalin: Javalin
 
     fun startAppForTest() {
         OsMock.startOsMock()
-
-        if (!javalinServerStartet) {
-            javalin = startApp(issuerProperties)
-            javalinServerStartet = true
-        }
+        javalin = startApp(issuerProperties)
     }
 
     fun avsluttAppForTest() {
         javalin.stop()
-        javalinServerStartet = false
     }
 
     val issuerProperties =
