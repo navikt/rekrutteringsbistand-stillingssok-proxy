@@ -2,10 +2,11 @@ name: Trivy security scan
 on:
   schedule:
     - cron: '40 5 * * 1'
+  workflow_dispatch:
 
 jobs:
   call-trivy-security-scan:
-    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@v1
+    uses: navikt/toi-github-actions-workflows/.github/workflows/trivy-security-scan.yaml@v2
     permissions:
       id-token: write
       security-events: write
