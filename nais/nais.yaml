@@ -47,6 +47,7 @@ spec:
         - application: rekrutteringsbistand-frontend
         - application: rekrutteringsbistand-frontend2
         - application: rekrutteringsbistand-stilling-api
+        - application: toi-deling-av-cv-api
     outbound:
       rules:
         - application: logging
