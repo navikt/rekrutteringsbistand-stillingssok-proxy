@@ -6,10 +6,9 @@ jobs:
     uses: navikt/toi-github-actions-workflows/.github/workflows/build-and-deploy.yaml@v15
     with:
       java-version: '25'
-      deploy-to-dev-if-branch-name-is: 'bruk-workflows-v15'
+      deploy-to-dev-if-branch-name-is: 'fjern-trivy-og-codeql'
     permissions:
       contents: read
       id-token: write
       security-events: write
     secrets: inherit
-
