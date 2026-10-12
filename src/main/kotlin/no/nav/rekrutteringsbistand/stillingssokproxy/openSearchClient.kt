@@ -1,36 +1,43 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
-import org.apache.http.HttpHost
-import org.apache.http.auth.AuthScope
-import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.impl.client.BasicCredentialsProvider
-import org.opensearch.client.RestClient
+import org.apache.hc.client5.http.auth.AuthScope
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider
+import org.apache.hc.core5.http.HttpHost
+import org.apache.hc.core5.util.Timeout
+import org.opensearch.client.opensearch.generic.OpenSearchGenericClient
+import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder
 
 object OpenSearch {
 
-    val client: RestClient by lazy {
+    val host: HttpHost by lazy { HttpHost.create(environment["OPEN_SEARCH_URI"]) }
+
+    val client: OpenSearchGenericClient by lazy {
         val username = environment["OPEN_SEARCH_USERNAME"]
         val password = environment["OPEN_SEARCH_PASSWORD"]
-        val url = environment["OPEN_SEARCH_URI"]
 
-        RestClient
-            .builder(HttpHost.create(url))
-            .setRequestConfigCallback {
+        val transport = ApacheHttpClient5TransportBuilder
+            .builder(host)
+            .setConnectionConfigCallback {
                 it
-                    .setConnectionRequestTimeout(5000)
-                    .setConnectTimeout(10000)
-                    .setSocketTimeout(20000)
+                    .setConnectTimeout(Timeout.ofMilliseconds(10000))
+                    .setSocketTimeout(Timeout.ofMilliseconds(20000))
+            }
+            .setRequestConfigCallback {
+                it.setConnectionRequestTimeout(Timeout.ofMilliseconds(5000))
             }
             .setHttpClientConfigCallback {
                 it.setDefaultCredentialsProvider(
                     BasicCredentialsProvider().apply {
                         setCredentials(
-                            AuthScope.ANY,
-                            UsernamePasswordCredentials(username, password)
+                            AuthScope(host),
+                            UsernamePasswordCredentials(username, password?.toCharArray())
                         )
                     }
                 )
             }.build()
+
+        OpenSearchGenericClient(transport)
     }
 
 }

@@ -1,14 +1,13 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import io.javalin.http.InternalServerErrorResponse
-import org.apache.http.client.ClientProtocolException
-import org.apache.http.entity.ContentType
-import org.apache.http.entity.StringEntity
-import org.apache.http.util.EntityUtils
-import org.opensearch.client.Request
-import org.opensearch.client.ResponseException
+import org.apache.hc.client5.http.ClientProtocolException
+import org.opensearch.client.opensearch.generic.Request
+import org.opensearch.client.opensearch.generic.Requests
+import org.opensearch.client.transport.httpclient5.ResponseException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.optionals.getOrNull
 
 private val log = noClassLogger()
 
@@ -17,8 +16,10 @@ fun søk(jsonbody: String, params: Map<String, List<String>>, indeks: String): O
     return gjørRequest(request, "/stilling/_search")
 }
 
-fun hentDokument(dokumentnummer: String, indeks: String): OpenSearchSvar =
-    gjørRequest(Request("GET", "/$indeks/_doc/$dokumentnummer"), "/stilling/_doc")
+fun hentDokument(dokumentnummer: String, indeks: String): OpenSearchSvar {
+    val request = Requests.builder().method("GET").endpoint("/$indeks/_doc/$dokumentnummer").build()
+    return gjørRequest(request, "/stilling/_doc")
+}
 
 fun explain(
     jsonbody: String,
@@ -30,65 +31,78 @@ fun explain(
     return gjørRequest(request, "/stilling/_explain")
 }
 
-private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar = try {
-    val now = System.currentTimeMillis()
+private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar {
+    val start = System.currentTimeMillis()
 
-    val response = OpenSearch.client.performRequest(request)
-    val statusKode = response.statusLine.statusCode
+    val svar = try {
+        OpenSearch.client.execute(request).use { response ->
+            OpenSearchSvar(response.status, response.body.getOrNull()?.bodyAsString() ?: "")
+        }
+    } catch (e: Exception) {
+        val responseException = e.finnÅrsak<ResponseException>()
+        if (responseException != null) {
+            OpenSearchSvar(responseException.status(), responseException.responsbody())
+        } else {
+            log.error("Feil ved kall mot OpenSearch: ${request.method} ${request.endpoint}", e)
+            return when {
+                e.finnÅrsak<ClientProtocolException>() != null -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
+                e is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
+                else -> throw InternalServerErrorResponse()
+            }
+        }
+    }
 
     Singeltons.meterRegistry.let { m ->
-        val meter = m.timer("outbound_requests", "target", kortUrl, "status", statusKode.toString())
-        meter.record(System.currentTimeMillis() - now, TimeUnit.MILLISECONDS)
+        val meter = m.timer("outbound_requests", "target", kortUrl, "status", svar.statuskode.toString())
+        meter.record(System.currentTimeMillis() - start, TimeUnit.MILLISECONDS)
     }
-    val resultat = EntityUtils.toString(response.entity)
-    OpenSearchSvar(statusKode, resultat)
-} catch (e: Exception) {
-    log.error("Feil ved kall mot OpenSearch med ${request::class.qualifiedName}=$request", e)
 
-    when (e) {
-        is ResponseException -> {
-            val response = e.response
-            val statusCode = response.statusLine.statusCode
-            val requestLine = response.requestLine
-            val responseBody = EntityUtils.toString(response.entity)
+    if (svar.statuskode !in 200..299) {
+        loggFeilsvar(request, svar)
+    }
+    return svar
+}
 
-            log.error(
-                "Feil ved kall mot OpenSearch. " +
-                "Method: ${requestLine.method}, " +
-                "URI: ${requestLine.uri}, " +
-                "Host: ${response.host}, " +
-                "HTTP Status: $statusCode. " +
-                "Se team-logs for detaljer."
-            )
+private fun loggFeilsvar(request: Request, svar: OpenSearchSvar) {
+    log.error(
+        "Feil ved kall mot OpenSearch. " +
+        "Method: ${request.method}, " +
+        "URI: ${request.endpoint}, " +
+        "Host: ${OpenSearch.host}, " +
+        "HTTP Status: ${svar.statuskode}. " +
+        "Se team-logs for detaljer."
+    )
 
-            val fullLogMessage = "Feil ved kall mot OpenSearch. " +
-                    "Method: ${requestLine.method}, " +
-                    "URI: ${requestLine.uri}, " +
-                    "Params: ${request.parameters}, " +
-                    "Host: ${response.host}, " +
-                    "HTTP Status: $statusCode, " +
-                    "Response: $responseBody"
+    val fullLogMessage = "Feil ved kall mot OpenSearch. " +
+            "Method: ${request.method}, " +
+            "URI: ${request.endpoint}, " +
+            "Params: ${request.parameters}, " +
+            "Host: ${OpenSearch.host}, " +
+            "HTTP Status: ${svar.statuskode}, " +
+            "Response: ${svar.resultat}"
 
-            log.error(teamLogsMarker, fullLogMessage)
+    log.error(teamLogsMarker, fullLogMessage)
 
-            if(request.entity != null) {
-                log.error(teamLogsMarker, "Søk som feilet mot opensearch (request body): ${EntityUtils.toString(request.entity)}")
-            }
-            OpenSearchSvar(statusCode, responseBody)
-        }
-        is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
-        is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
-        else -> throw InternalServerErrorResponse()
+    request.body.getOrNull()?.let {
+        log.error(teamLogsMarker, "Søk som feilet mot opensearch (request body): ${it.bodyAsString()}")
     }
 }
 
+// ResponseException.getResponse() returnerer en package-private klasse, så bodyen må hentes fra meldingen, som har formatet
+// "method [..], host [..], URI [..], status line [..]", eventuelt "\nWarnings: [..]", og til slutt "\n<body>"
+private fun ResponseException.responsbody(): String =
+    message.orEmpty().lines().drop(1).dropWhile { it.startsWith("Warnings: ") }.joinToString("\n")
+
+private inline fun <reified T : Throwable> Throwable.finnÅrsak(): T? =
+    generateSequence(this) { it.cause }.filterIsInstance<T>().firstOrNull()
+
 private fun openSearchRequest(method: String, endpoint: String, params: Map<String, List<String>>, body: String) =
-    Request(method, endpoint).apply {
-        params.forEach { (name: String?, values: List<String>) ->
-            addParameter(name, values[0])
-        }
-        entity = StringEntity(body, ContentType.APPLICATION_JSON)
-    }
+    Requests.builder()
+        .method(method)
+        .endpoint(endpoint)
+        .query(params.mapValues { (_, values) -> values[0] })
+        .json(body)
+        .build()
 
 data class OpenSearchSvar(
     val statuskode: Int,

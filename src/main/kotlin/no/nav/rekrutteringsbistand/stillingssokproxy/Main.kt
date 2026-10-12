@@ -28,6 +28,9 @@ val environment = dotenv { ignoreIfMissing = true }
 
 fun main() {
     try {
+        log.info("Starter app.")
+        log.info(teamLogsMarker, "Starter app. Dette er ment å logges til Team Logs. Hvis du ser dette i den ordinære apploggen er noe galt, og sensitive data kan havne i feil logg.")
+
         val issuerProperties = hentIssuerProperties(System.getenv())
         startApp(issuerProperties)
     } catch (e: Exception) {
