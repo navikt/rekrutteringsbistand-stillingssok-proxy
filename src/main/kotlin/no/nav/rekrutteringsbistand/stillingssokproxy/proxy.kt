@@ -41,9 +41,9 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar {
         log.error("Feil ved kall mot OpenSearch: ${request.method} ${request.endpoint}", e)
         log.error(teamLogsMarker, "Feil ved kall mot OpenSearch: method ${request.method} endpoint ${request.endpoint} message: ${e.message}", e)
 
-        return when {
-            e is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
-            e is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
+        return when (e) {
+            is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
+            is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
             else -> throw InternalServerErrorResponse("Det skjedde en feil ved kall mot OpenSearch. Se team-logs for detaljer.")
         }
     }
