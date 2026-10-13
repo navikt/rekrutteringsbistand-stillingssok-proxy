@@ -4,7 +4,6 @@ import io.javalin.http.InternalServerErrorResponse
 import org.apache.hc.client5.http.ClientProtocolException
 import org.opensearch.client.opensearch.generic.Request
 import org.opensearch.client.opensearch.generic.Requests
-import org.opensearch.client.transport.httpclient5.ResponseException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.jvm.optionals.getOrNull
@@ -39,16 +38,13 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar {
             OpenSearchSvar(response.status, response.body.getOrNull()?.bodyAsString() ?: "")
         }
     } catch (e: Exception) {
-        val responseException = e.finnÅrsak<ResponseException>()
-        if (responseException != null) {
-            OpenSearchSvar(responseException.status(), responseException.responsbody())
-        } else {
-            log.error("Feil ved kall mot OpenSearch: ${request.method} ${request.endpoint}", e)
-            return when {
-                e.finnÅrsak<ClientProtocolException>() != null -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
-                e is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
-                else -> throw InternalServerErrorResponse()
-            }
+        log.error("Feil ved kall mot OpenSearch: ${request.method} ${request.endpoint}", e)
+        log.error(teamLogsMarker, "Feil ved kall mot OpenSearch: ${request.method} ${request.endpoint}", e.message)
+
+        return when {
+            e is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
+            e is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
+            else -> throw InternalServerErrorResponse("Det skjedde en feil ved kall mot OpenSearch. Se team-logs for detaljer.")
         }
     }
 
@@ -87,14 +83,6 @@ private fun loggFeilsvar(request: Request, svar: OpenSearchSvar) {
         log.error(teamLogsMarker, "Søk som feilet mot opensearch (request body): ${it.bodyAsString()}")
     }
 }
-
-// Gjør at frontenden bare får selve body som svar og som vil være gyldig json. Under er hvordan et svar ser ut
-// "method [..], host [..], URI [..], status line [..]", eventuelt "\nWarnings: [..]", og til slutt "\n<body>"
-private fun ResponseException.responsbody(): String =
-    message.orEmpty().lines().drop(1).dropWhile { it.startsWith("Warnings: ") }.joinToString("\n")
-
-private inline fun <reified T : Throwable> Throwable.finnÅrsak(): T? =
-    generateSequence(this) { it.cause }.filterIsInstance<T>().firstOrNull()
 
 private fun openSearchRequest(method: String, endpoint: String, params: Map<String, List<String>>, body: String) =
     Requests.builder()

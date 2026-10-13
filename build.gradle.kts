@@ -40,9 +40,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("io.prometheus:simpleclient_common:0.16.0")
 
-    testImplementation("com.github.kittinunf.fuel:fuel:2.3.1")
-    testImplementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
-    testImplementation("no.nav.security:mock-oauth2-server:2.3.0")
+    testImplementation("no.nav.security:mock-oauth2-server:6.0.5")
     testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.mock-server:mockserver-netty:8.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter-engine")

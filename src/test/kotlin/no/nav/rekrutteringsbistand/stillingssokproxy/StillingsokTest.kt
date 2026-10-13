@@ -1,7 +1,5 @@
 package no.nav.rekrutteringsbistand.stillingssokproxy
 
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.security.mock.oauth2.token.DefaultOAuth2TokenCallback
 import org.assertj.core.api.Assertions.assertThat
@@ -33,11 +31,9 @@ class StillingsokTest {
     @Test
     fun `Søkekall til appen skal videresende søk til OS og returnere svar fra OS uten endringer`() {
         val token = hentToken(mockOAuth2Server)
-        val (_, response, result) = Fuel.post(searchurl).authentication()
-            .bearer(token.serialize())
-            .responseString()
-        assertThat(response.statusCode).isEqualTo(200)
-        assertThat(result.get()).isEqualTo(OsMock.jsonResultat)
+        val response = httpPost(searchurl, token.serialize())
+        assertThat(response.statusCode()).isEqualTo(200)
+        assertThat(response.body()).isEqualTo(OsMock.jsonResultat)
     }
 
     private fun hentToken(mockOAuth2Server: MockOAuth2Server) = mockOAuth2Server.issueToken(
