@@ -2,8 +2,10 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import io.javalin.http.InternalServerErrorResponse
 import org.apache.hc.client5.http.ClientProtocolException
+import org.apache.hc.core5.http.io.entity.EntityUtils
 import org.opensearch.client.opensearch.generic.Request
 import org.opensearch.client.opensearch.generic.Requests
+import org.opensearch.client.transport.httpclient5.ResponseException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.jvm.optionals.getOrNull
@@ -38,10 +40,12 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar {
             OpenSearchSvar(response.status, response.body.getOrNull()?.bodyAsString() ?: "")
         }
     } catch (e: Exception) {
-        log.error("Feil ved kall mot OpenSearch: ${request.method} ${request.endpoint}", e)
-        log.error(teamLogsMarker, "Feil ved kall mot OpenSearch: method ${request.method} endpoint ${request.endpoint} message: ${e.message}", e)
-
+        log.error("Feil ved kall mot OpenSearch. Method: ${request.method}, URI: ${request.endpoint}, Host: ${OpenSearch.host}", e)
         return when (e) {
+            is ResponseException -> {
+                loggFeilsvar(request, OpenSearchSvar(e.status(), e.message ?: ""))
+                OpenSearchSvar(e.status(), "Det skjedde en feil ved kall mot OpenSearch. Se team-logs for detaljer.")
+            }
             is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
             is IOException -> OpenSearchSvar(504, "Problem med tilkobling til OpenSearch")
             else -> throw InternalServerErrorResponse("Det skjedde en feil ved kall mot OpenSearch. Se team-logs for detaljer.")
