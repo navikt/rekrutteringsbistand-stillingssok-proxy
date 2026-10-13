@@ -88,7 +88,7 @@ private fun loggFeilsvar(request: Request, svar: OpenSearchSvar) {
     }
 }
 
-// ResponseException.getResponse() returnerer en package-private klasse, så bodyen må hentes fra meldingen, som har formatet
+// Gjør at frontenden bare får selve body som svar og som vil være gyldig json. Under er hvordan et svar ser ut
 // "method [..], host [..], URI [..], status line [..]", eventuelt "\nWarnings: [..]", og til slutt "\n<body>"
 private fun ResponseException.responsbody(): String =
     message.orEmpty().lines().drop(1).dropWhile { it.startsWith("Warnings: ") }.joinToString("\n")
