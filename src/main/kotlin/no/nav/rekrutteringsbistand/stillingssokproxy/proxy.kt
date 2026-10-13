@@ -39,7 +39,7 @@ private fun gjørRequest(request: Request, kortUrl: String): OpenSearchSvar {
         }
     } catch (e: Exception) {
         log.error("Feil ved kall mot OpenSearch: ${request.method} ${request.endpoint}", e)
-        log.error(teamLogsMarker, "Feil ved kall mot OpenSearch: ${request.method} ${request.endpoint}", e.message)
+        log.error(teamLogsMarker, "Feil ved kall mot OpenSearch: method ${request.method} endpoint ${request.endpoint} message: ${e.message}", e)
 
         return when {
             e is ClientProtocolException -> OpenSearchSvar(500, "Proxy har HTTP-protokollfeil mot OpenSearch")
