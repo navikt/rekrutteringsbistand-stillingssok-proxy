@@ -2,7 +2,6 @@ package no.nav.rekrutteringsbistand.stillingssokproxy
 
 import io.javalin.http.InternalServerErrorResponse
 import org.apache.hc.client5.http.ClientProtocolException
-import org.apache.hc.core5.http.io.entity.EntityUtils
 import org.opensearch.client.opensearch.generic.Request
 import org.opensearch.client.opensearch.generic.Requests
 import org.opensearch.client.transport.httpclient5.ResponseException
